@@ -67,6 +67,8 @@ export const FR: Record<string, string> = {
   'footer.disclaimer':
     'Filigrane est un projet open source indépendant, sans lien avec la Commission européenne. Il fournit des mesures techniques, pas un avis juridique.',
   'footer.made': 'Fabriqué en France',
+  'footer.legal':
+    'Mentions légales : site édité par Alexis Nieto (particulier, projet open source) · contact via <a href="https://github.com/Sailxe42/filigrane/issues">GitHub</a>. Hébergé par GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis (<a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">politique de confidentialité</a>). Confidentialité : ni cookie, ni mesure d’audience, ni compte. Les fichiers vérifiés sont traités dans votre navigateur et ne sont jamais envoyés. Votre langue n’est mémorisée dans votre navigateur que si vous en choisissez une. <a href="./third-party-licenses.txt">Licences tierces</a>.',
   // verify page
   'v.title': 'Vérifiez si un contenu a été généré par IA',
   'v.lead': 'Glissez une image : Filigrane cherche un manifeste C2PA signé, des métadonnées IPTC et un filigrane invisible. Ou collez un texte.',
@@ -101,12 +103,15 @@ export function detectLang(): Lang {
 const original = new Map<Element, string>();
 
 /** Swaps every [data-i18n] / [data-i18n-html] element to the requested language. */
-export function applyLang(lang: Lang): void {
+/** `remember`: store the choice, only when the visitor picked a language themselves. */
+export function applyLang(lang: Lang, remember = false): void {
   document.documentElement.lang = lang;
-  try {
-    localStorage.setItem('fg-site-lang', lang);
-  } catch {
-    // ignore
+  if (remember) {
+    try {
+      localStorage.setItem('fg-site-lang', lang);
+    } catch {
+      // ignore
+    }
   }
   for (const el of document.querySelectorAll('[data-i18n], [data-i18n-html]')) {
     const html = el.hasAttribute('data-i18n-html');
@@ -129,7 +134,7 @@ export function initLangSwitch(): Lang {
   const lang = detectLang();
   applyLang(lang);
   for (const b of document.querySelectorAll<HTMLButtonElement>('[data-lang]')) {
-    b.addEventListener('click', () => applyLang(b.dataset.lang as Lang));
+    b.addEventListener('click', () => applyLang(b.dataset.lang as Lang, true));
   }
   return lang;
 }

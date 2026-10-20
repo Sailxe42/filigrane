@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Filigrane — open-source AI transparency for the EU AI Act</title>
     <meta name="description" content="Open-source TypeScript toolkit for EU AI Act Article 50: mark AI-generated images with C2PA + invisible watermark + IPTC, disclose chatbots in 24 EU languages, verify any file in your browser." />
@@ -231,6 +232,7 @@ npx filigrane verify cover.ai.png</pre>
     <footer>
       <div class="wrap">
         <p data-i18n="footer.disclaimer">Filigrane is an independent open-source project, not affiliated with the European Commission. It provides technical measures, not legal advice.</p>
+        <p data-i18n-html="footer.legal">Legal notice: published by Alexis Nieto (individual, open-source project) · contact via <a href="https://github.com/Sailxe42/filigrane/issues">GitHub</a>. Hosted by GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA (<a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">privacy statement</a>). Privacy: no cookies, no analytics, no account. Files you check are processed in your browser and never uploaded. Your language is remembered in your browser only if you choose one. <a href="./third-party-licenses.txt">Third-party licences</a>.</p>
         <p>MIT · <a href="https://github.com/Sailxe42/filigrane">GitHub</a> · <span data-i18n="footer.made">Made in France</span></p>
       </div>
     </footer>

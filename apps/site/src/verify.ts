@@ -55,6 +55,8 @@ async function verifyFile(file: File): Promise<void> {
   const out = $('result');
   working(out);
   try {
+    if (lastVerify) URL.revokeObjectURL(lastVerify.url);
+    lastVerify = undefined;
     const url = URL.createObjectURL(file);
     const { report } = await call<{ report: VerifyImageResult }>('verify', await readFile(file));
     lastVerify = { report, url };
@@ -110,6 +112,13 @@ function initText(): void {
 // ---------------------------------------------------------------- playground
 
 let marked: { bytes: Uint8Array; mimeType: string } | undefined;
+/** Object URLs of the playground previews, released when a new image is processed. */
+let playUrls: string[] = [];
+function playUrl(blob: Blob): string {
+  const url = URL.createObjectURL(blob);
+  playUrls.push(url);
+  return url;
+}
 
 function initPlayground(): void {
   const input = $<HTMLInputElement>('play-file');
@@ -121,10 +130,12 @@ function initPlayground(): void {
     const file = input.files?.[0];
     if (!file) return;
     working(out);
+    for (const u of playUrls) URL.revokeObjectURL(u);
+    playUrls = [];
     try {
       const res = await call<{ bytes: Uint8Array; mimeType: string; report: VerifyImageResult }>('mark', await readFile(file));
       marked = res;
-      const url = URL.createObjectURL(new Blob([res.bytes as BlobPart], { type: res.mimeType }));
+      const url = playUrl(new Blob([res.bytes as BlobPart], { type: res.mimeType }));
       download.href = url;
       download.download = file.name.replace(/(\.\w+)?$/, (ext) => `.ai${ext || (res.mimeType === 'image/png' ? '.png' : '.jpg')}`);
       download.hidden = false;
@@ -139,7 +150,7 @@ function initPlayground(): void {
     working(out);
     try {
       const res = await call<{ bytes: Uint8Array; mimeType: string; report: VerifyImageResult }>('launder', marked.bytes);
-      const url = URL.createObjectURL(new Blob([res.bytes as BlobPart], { type: res.mimeType }));
+      const url = playUrl(new Blob([res.bytes as BlobPart], { type: res.mimeType }));
       const fr = document.documentElement.lang === 'fr';
       out.innerHTML =
         `<p class="small muted">${fr ? 'Après effacement des métadonnées et recompression JPEG (qualité 75) :' : 'After stripping metadata and recompressing as JPEG (quality 75):'}</p>` +
