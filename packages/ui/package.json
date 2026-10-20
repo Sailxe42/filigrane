@@ -1,0 +1,35 @@
+{
+  "name": "@filigrane/ui",
+  "version": "0.1.0",
+  "description": "Accessible Web Components to disclose AI to users in the 24 EU languages: chatbot banner and AI-generated labels (EU AI Act Article 50).",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": [
+    "./dist/index.js"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "keywords": [
+    "ai-act",
+    "article-50",
+    "web-components",
+    "accessibility",
+    "ai-disclosure",
+    "chatbot",
+    "ai-label",
+    "i18n"
+  ]
+}
