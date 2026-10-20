@@ -88,13 +88,24 @@ function findAll(text: string, file: string, patterns: Pattern[], starts: number
   return hits;
 }
 
+/**
+ * Paths are reported relative to the working directory when the file is inside it,
+ * so `filigrane scan src` in a repository gives repository-relative paths (what
+ * GitHub code scanning expects); otherwise relative to the scanned directory.
+ */
+function displayPath(file: string, root: string): string {
+  const fromCwd = path.relative(process.cwd(), file);
+  const inside = fromCwd !== '' && !fromCwd.startsWith('..') && !path.isAbsolute(fromCwd);
+  return (inside ? fromCwd : path.relative(root, file)).split(path.sep).join('/');
+}
+
 function finding(ruleId: string, hit: Hit, root: string, extra = ''): Finding {
   const rule = RULES[ruleId];
   return {
     ruleId,
     level: rule.level,
     message: `${rule.summary} (${hit.what}${extra}). ${rule.help}`,
-    file: path.relative(root, hit.file).split(path.sep).join('/'),
+    file: displayPath(hit.file, root),
     line: hit.line,
     column: hit.column,
     snippet: hit.snippet,

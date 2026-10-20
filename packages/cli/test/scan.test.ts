@@ -58,6 +58,19 @@ describe('scanProject', () => {
     expect(r.findings).toEqual([]);
   });
 
+  it('reports paths relative to the working directory when scanning a subfolder', async () => {
+    const dir = await project({ 'web/lib/images.ts': IMAGES });
+    const cwd = process.cwd();
+    process.chdir(dir);
+    try {
+      const r = await scanProject('web');
+      // GitHub code scanning resolves SARIF paths from the repository root.
+      expect(r.findings.find((f) => f.ruleId === 'FG002')?.file).toBe('web/lib/images.ts');
+    } finally {
+      process.chdir(cwd);
+    }
+  });
+
   it('produces valid SARIF and Markdown reports', async () => {
     const r = await scanProject(await project({ 'lib/images.ts': IMAGES }));
     const sarif = JSON.parse(formatSarif(r, '0.0.0'));

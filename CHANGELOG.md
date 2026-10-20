@@ -20,6 +20,7 @@ Security release: update `@filigranejs/core` and `filigrane` (the CLI). `@filigr
 - JPEG decoding is limited to 100 megapixels and 1 GB of memory.
 - `filigrane verify` reports unreadable files and continues with the others (exit code 2 when a file fails).
 - `filigrane scan` maps matches to lines in O(log n) instead of re-reading the file for each match.
+- `filigrane scan <subfolder>` reports paths relative to the working directory, so GitHub code scanning links findings to the right files when the action scans a subfolder.
 - GitHub Action: keeps the job's Node.js version when it is 20 or newer, writes its reports to the runner's temporary directory, runs the scan twice instead of three times, and uses CLI version `0` (latest 0.x) by default instead of `latest`.
 - Website: Content Security Policy, legal notice and third-party licences; the language is stored only when the visitor picks one; object URLs are released.
 
