@@ -12,10 +12,12 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
-    "test": "vitest run",
+    "build": "tsc -b packages/core packages/ui packages/cli",
     "typecheck": "tsc -b packages/core packages/ui packages/cli",
-    "dev:site": "npm run dev -w apps/site"
+    "test": "vitest run",
+    "conformance": "node scripts/conformance.mjs",
+    "dev:site": "npm run dev -w apps/site",
+    "build:site": "npm run build -w apps/site"
   },
   "devDependencies": {
     "@types/node": "^22.20.5",

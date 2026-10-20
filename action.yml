@@ -1,0 +1,52 @@
+name: 'Filigrane — AI transparency scan'
+description: 'Find EU AI Act Article 50 gaps (chatbot disclosure, marking of AI-generated media) and report them in code scanning and the job summary.'
+author: 'Alexis Nieto'
+branding:
+  icon: 'eye'
+  color: 'purple'
+
+inputs:
+  path:
+    description: 'Directory to scan.'
+    default: '.'
+  fail-on:
+    description: 'Fail the job on "error" findings (default), on "warning" and above, or "never".'
+    default: 'error'
+  upload-sarif:
+    description: 'Upload results to GitHub code scanning (needs "security-events: write").'
+    default: 'true'
+  version:
+    description: 'Version of the filigrane CLI to run from npm.'
+    default: 'latest'
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/setup-node@v5
+      with:
+        node-version: '22'
+
+    - name: Scan
+      shell: bash
+      env:
+        FG_PATH: ${{ inputs.path }}
+        FG_VERSION: ${{ inputs.version }}
+      run: |
+        npx --yes "filigrane@${FG_VERSION}" scan "$FG_PATH" --format markdown --output filigrane-report.md --fail-on never
+        npx --yes "filigrane@${FG_VERSION}" scan "$FG_PATH" --format sarif --output filigrane.sarif --fail-on never
+        cat filigrane-report.md >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Upload SARIF
+      if: ${{ inputs.upload-sarif == 'true' }}
+      uses: github/codeql-action/upload-sarif@v4
+      with:
+        sarif_file: filigrane.sarif
+        category: filigrane
+
+    - name: Enforce
+      shell: bash
+      env:
+        FG_PATH: ${{ inputs.path }}
+        FG_VERSION: ${{ inputs.version }}
+        FG_FAIL_ON: ${{ inputs.fail-on }}
+      run: npx --yes "filigrane@${FG_VERSION}" scan "$FG_PATH" --fail-on "$FG_FAIL_ON"
