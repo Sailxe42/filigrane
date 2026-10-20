@@ -15,7 +15,7 @@
   },
   "type": "module",
   "bin": {
-    "filigrane": "./dist/cli.js"
+    "filigrane": "dist/cli.js"
   },
   "files": [
     "LICENSE",
