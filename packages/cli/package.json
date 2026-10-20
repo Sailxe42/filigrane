@@ -1,0 +1,32 @@
+{
+  "name": "filigrane",
+  "version": "0.1.0",
+  "description": "CLI for AI transparency: mark AI-generated images and text, verify files, and scan projects for EU AI Act Article 50 gaps (SARIF, Markdown reports).",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "filigrane": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@filigrane/core": "0.1.0"
+  },
+  "keywords": [
+    "ai-act",
+    "article-50",
+    "c2pa",
+    "watermark",
+    "compliance",
+    "sarif",
+    "cli"
+  ]
+}
