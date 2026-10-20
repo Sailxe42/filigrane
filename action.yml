@@ -1,5 +1,5 @@
 name: 'Filigrane — AI transparency scan'
-description: 'Find EU AI Act Article 50 gaps (chatbot disclosure, marking of AI-generated media) and report them in code scanning and the job summary.'
+description: 'Find EU AI Act Article 50 gaps (chatbot disclosure, AI media marking) and report them in code scanning and job summaries.'
 author: 'Alexis Nieto'
 branding:
   icon: 'eye'
