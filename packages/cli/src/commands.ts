@@ -20,7 +20,7 @@ import { formatJson, formatMarkdown, formatSarif, formatText } from './scan/repo
 import { scanProject } from './scan/scan.ts';
 import { c } from './term.ts';
 
-export const CLI_VERSION = '0.1.0';
+export const CLI_VERSION = '0.1.2';
 
 /** Uses `sharp` for WebP pixels when it is installed (optional: `npm install sharp`). */
 let codecsReady: Promise<void> | undefined;
@@ -136,19 +136,27 @@ export async function cmdVerify(files: string[], a: VerifyArgs): Promise<number>
   await registerOptionalCodecs();
   const trustAnchors = a.trust ? await pemValue(a.trust) : undefined;
   const results: Record<string, unknown> = {};
+  let failures = 0;
   for (const file of files) {
-    if (isText(file)) {
-      const r = readText(await readFile(file, 'utf8'));
-      if (a.json) results[file] = { kind: 'text', detected: r.detected, payload: r.payload, markers: r.markers };
-      else console.log(`${c.bold(file)}  ${r.detected ? c.magenta(r.payload?.aiModified ? 'AI-MODIFIED' : 'AI-GENERATED') : c.green('NO AI SIGNAL')} ${c.dim(`(${r.markers} text marker(s))`)}`);
-      continue;
+    try {
+      if (isText(file)) {
+        const r = readText(await readFile(file, 'utf8'));
+        if (a.json) results[file] = { kind: 'text', detected: r.detected, payload: r.payload, markers: r.markers };
+        else console.log(`${c.bold(file)}  ${r.detected ? c.magenta(r.payload?.aiModified ? 'AI-MODIFIED' : 'AI-GENERATED') : c.green('NO AI SIGNAL')} ${c.dim(`(${r.markers} text marker(s))`)}`);
+        continue;
+      }
+      const v = await verifyImage(new Uint8Array(await readFile(file)), { trustAnchors });
+      if (a.json) results[file] = v;
+      else console.log(describe(file, v) + '\n');
+    } catch (e) {
+      // One unreadable file must not stop the others.
+      failures++;
+      if (a.json) results[file] = { error: (e as Error).message };
+      else console.log(`${c.bold(file)}  ${c.red(`ERROR ${(e as Error).message}`)}\n`);
     }
-    const v = await verifyImage(new Uint8Array(await readFile(file)), { trustAnchors });
-    if (a.json) results[file] = v;
-    else console.log(describe(file, v) + '\n');
   }
   if (a.json) console.log(JSON.stringify(results, (_k, v) => (v instanceof Uint8Array ? undefined : v), 2));
-  return 0;
+  return failures ? 2 : 0;
 }
 
 export async function cmdKeygen(a: { out?: string; name?: string; days?: number }): Promise<number> {

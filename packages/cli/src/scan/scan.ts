@@ -61,16 +61,28 @@ interface Hit {
   what: string;
 }
 
-function findAll(text: string, file: string, patterns: Pattern[]): Hit[] {
+/** Offsets where each line starts, so a match position maps to a line in O(log n). */
+function lineStarts(text: string): number[] {
+  const starts = [0];
+  for (let i = text.indexOf('\n'); i !== -1; i = text.indexOf('\n', i + 1)) starts.push(i + 1);
+  return starts;
+}
+
+function findAll(text: string, file: string, patterns: Pattern[], starts: number[]): Hit[] {
   const hits: Hit[] = [];
   for (const p of patterns) {
     const re = new RegExp(p.re.source, p.re.flags.includes('g') ? p.re.flags : `${p.re.flags}g`);
     for (const m of text.matchAll(re)) {
-      const before = text.slice(0, m.index);
-      const line = before.split('\n').length;
-      const column = m.index! - before.lastIndexOf('\n');
-      const snippet = text.split('\n')[line - 1]?.trim().slice(0, 160) ?? '';
-      hits.push({ file, line, column, snippet, what: p.what });
+      let lo = 0;
+      let hi = starts.length - 1;
+      while (lo < hi) {
+        const mid = (lo + hi + 1) >> 1;
+        if (starts[mid] <= m.index!) lo = mid;
+        else hi = mid - 1;
+      }
+      const lineEnd = lo + 1 < starts.length ? starts[lo + 1] - 1 : text.length;
+      const snippet = text.slice(starts[lo], lineEnd).trim().slice(0, 160);
+      hits.push({ file, line: lo + 1, column: m.index! - starts[lo] + 1, snippet, what: p.what });
     }
   }
   return hits;
@@ -110,11 +122,12 @@ export async function scanProject(root: string): Promise<ScanResult> {
     if (s.size > MAX_FILE_SIZE) continue;
     const text = await readFile(file, 'utf8');
     filesScanned++;
-    sdk.push(...findAll(text, file, AI_SDK));
-    chat.push(...findAll(text, file, CHAT));
-    image.push(...findAll(text, file, IMAGE_GEN));
-    av.push(...findAll(text, file, AUDIO_VIDEO_GEN));
-    deepfake.push(...findAll(text, file, DEEPFAKE));
+    const starts = lineStarts(text);
+    sdk.push(...findAll(text, file, AI_SDK, starts));
+    chat.push(...findAll(text, file, CHAT, starts));
+    image.push(...findAll(text, file, IMAGE_GEN, starts));
+    av.push(...findAll(text, file, AUDIO_VIDEO_GEN, starts));
+    deepfake.push(...findAll(text, file, DEEPFAKE, starts));
     if (!disclosure && DISCLOSURE_EVIDENCE.some((re) => re.test(text))) disclosure = true;
     if (!marking && MARKING_EVIDENCE.some((re) => re.test(text))) marking = true;
   }
