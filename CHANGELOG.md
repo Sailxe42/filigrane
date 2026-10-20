@@ -18,6 +18,7 @@ Security release: update `@filigranejs/core` and `filigrane` (the CLI). `@filigr
 ### Changed
 
 - JPEG decoding is limited to 100 megapixels and 1 GB of memory.
+- `markImage()` reads the watermark back after encoding: on images too small or too uniform for it to survive compression, it is no longer listed in `layers` (a warning explains why) and no soft-binding assertion points to it.
 - `filigrane verify` reports unreadable files and continues with the others (exit code 2 when a file fails).
 - `filigrane scan` maps matches to lines in O(log n) instead of re-reading the file for each match.
 - `filigrane scan <subfolder>` reports paths relative to the working directory, so GitHub code scanning links findings to the right files when the action scans a subfolder.

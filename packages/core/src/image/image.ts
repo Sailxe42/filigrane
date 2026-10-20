@@ -88,7 +88,14 @@ export async function markImage(input: Uint8Array, o: MarkImageOptions = {}): Pr
         o.watermark,
       );
       bytes = await encodeImageAsync(marked, format, { quality: o.quality, source: bytes });
-      layers.push('watermark');
+      // Read it back: on tiny or very uniform images, compression can erase the mark.
+      const check = detectWatermark(await decodeImageAsync(bytes), { key: o.watermark?.key });
+      if (check.detected && check.payload?.id === watermarkId) {
+        layers.push('watermark');
+      } else {
+        warnings.push('watermark not detectable after encoding (image too small or too uniform): not counted as a layer');
+        watermarkId = undefined;
+      }
     }
   }
 

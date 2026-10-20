@@ -39,6 +39,19 @@ describe.each(['jpeg', 'png'] as const)('markImage / verifyImage (%s)', (format)
     expect(v.signals).toBe(2);
   });
 
+  it('counts the watermark layer only when it can be read back', async () => {
+    // A small, perfectly flat image has no texture to hide the mark in: lossy JPEG erases it.
+    const flat = { width: 72, height: 72, data: new Uint8Array(72 * 72 * 4).fill(128) };
+    const marked = await markImage(encodeImage(flat, format), { layers: { c2pa: false } });
+    const v = await verifyImage(marked.bytes);
+    expect(marked.layers.includes('watermark')).toBe(v.watermark.detected);
+    if (format === 'jpeg') {
+      expect(marked.layers).toEqual(['metadata']);
+      expect(marked.watermarkId).toBeUndefined();
+      expect(marked.warnings.join(' ')).toMatch(/not detectable/);
+    }
+  });
+
   it('reports no signal on an unmarked image', async () => {
     const v = await verifyImage(input);
     expect(v.verdict).toBe('no-ai-signal');
