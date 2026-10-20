@@ -21,6 +21,6 @@ const answer = markText(llmOutput); // invisible, paragraph-level markers
 
 Development without a certificate: `createDevSigner()`.
 
-Documentation, robustness benchmark and conformance results: <https://github.com/Sailxe42/filigrane>
+Documentation, robustness benchmark and interoperability results: <https://github.com/Sailxe42/filigrane>
 
 Not legal advice. MIT licence.

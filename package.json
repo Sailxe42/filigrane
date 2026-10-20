@@ -15,7 +15,7 @@
     "build": "tsc -b packages/core packages/ui packages/cli",
     "typecheck": "tsc -b packages/core packages/ui packages/cli",
     "test": "vitest run",
-    "conformance": "node scripts/conformance.mjs",
+    "interop": "node scripts/interop.mjs",
     "dev:site": "npm run dev -w apps/site",
     "build:site": "npm run build -w apps/site"
   },

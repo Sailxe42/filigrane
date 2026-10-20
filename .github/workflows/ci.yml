@@ -26,8 +26,8 @@ jobs:
       - run: npm test
       - run: npm run build
 
-  conformance:
-    name: C2PA conformance (reference implementation)
+  interop:
+    name: C2PA interoperability (reference implementation)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -41,7 +41,7 @@ jobs:
       - run: pip install c2pa-python
       - run: npm ci
       - run: npm run build
-      - run: node scripts/conformance.mjs
+      - run: node scripts/interop.mjs
 
   self-scan:
     name: Scan the examples with the CLI

@@ -1,7 +1,7 @@
 /**
- * Conformance check against the C2PA reference implementation (c2pa-rs via c2pa-python).
+ * Interoperability check against the C2PA reference implementation (c2pa-rs via c2pa-python).
  *
- *   npm run build && pip install c2pa-python && node scripts/conformance.mjs
+ *   npm run build && pip install c2pa-python && node scripts/interop.mjs
  *
  * Marks JPEG and PNG images in every supported mode, then asks the reference
  * reader to validate them. Exits non-zero if any file is not "Valid".
@@ -13,8 +13,8 @@ import path from 'node:path';
 import { createDevSigner, encodeImage, markImage } from '../packages/core/dist/index.js';
 
 const python = process.env.PYTHON ?? (process.platform === 'win32' ? 'python' : 'python3');
-const dir = mkdtempSync(path.join(os.tmpdir(), 'filigrane-conformance-'));
-const signer = await createDevSigner('Filigrane Conformance');
+const dir = mkdtempSync(path.join(os.tmpdir(), 'filigrane-interop-'));
+const signer = await createDevSigner('Filigrane Interop');
 
 const w = 320;
 const h = 240;
@@ -32,7 +32,7 @@ for (const format of ['jpeg', 'png']) {
     const marked = await markImage(encodeImage({ width: w, height: h, data }, format), {
       signer,
       involvement,
-      model: { name: 'Conformance Model', version: '1.0' },
+      model: { name: 'Interop Model', version: '1.0' },
     });
     const file = path.join(dir, `${involvement}.${format === 'jpeg' ? 'jpg' : 'png'}`);
     writeFileSync(file, marked.bytes);

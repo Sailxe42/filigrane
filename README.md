@@ -5,7 +5,7 @@
 **Open-source AI transparency for the EU AI Act — mark, label and verify AI-generated content.**
 
 [![CI](https://github.com/Sailxe42/filigrane/actions/workflows/ci.yml/badge.svg)](https://github.com/Sailxe42/filigrane/actions/workflows/ci.yml)
-[![C2PA](https://img.shields.io/badge/C2PA-tested%20against%20c2pa--rs-5b3fd6)](#conformance-and-tests)
+[![C2PA](https://img.shields.io/badge/C2PA-tested%20against%20c2pa--rs-5b3fd6)](#interoperability-and-tests)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-zero%20native%20deps-3178c6)](#packages)
 
@@ -163,9 +163,9 @@ Not supported yet: cropping, rotation, mirroring. Run `npm run build && node scr
 | [`filigrane`](packages/cli) | CLI: `mark`, `verify`, `scan`, `keygen` |
 | [`apps/site`](apps/site) | Website, online verifier and playground |
 
-## Conformance and tests
+## Interoperability and tests
 
-- **Reference conformance**: on every commit, CI marks JPEG and PNG files and validates them with the C2PA reference implementation ([c2pa-rs](https://github.com/contentauth/c2pa-rs), through `c2pa-python`). All of them are reported **Valid**. Filigrane also validates manifests produced by c2pa-rs ([fixture](packages/core/test/fixtures)).
+- **Interoperability with the reference implementation**: on every commit, CI marks JPEG and PNG files and validates them with the C2PA reference implementation ([c2pa-rs](https://github.com/contentauth/c2pa-rs), through `c2pa-python`). All of them are reported **Valid**. Filigrane also validates manifests produced by c2pa-rs ([fixture](packages/core/test/fixtures)). This is an interoperability test, not a certification: Filigrane is not on the C2PA Conforming Products List.
 - **75 automated tests**: RFC 8949 CBOR vectors, X.509/COSE, tamper detection, watermark robustness and false positives, components in 24 languages, scanner rules and SARIF output.
 - **CI** on Node.js 20, 22 and 24.
 
@@ -173,7 +173,7 @@ Not supported yet: cropping, rotation, mirroring. Run `npm run build && node scr
 npm install
 npm test               # unit and integration tests
 npm run build
-npm run conformance    # needs: pip install c2pa-python
+npm run interop        # needs: pip install c2pa-python
 ```
 
 ## Roadmap

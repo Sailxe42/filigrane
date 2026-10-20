@@ -10,7 +10,7 @@ Thank you for helping make AI transparent! Contributions of all sizes are welcom
 
 ## Development
 
-Requirements: Node.js 20+ (22 recommended). Python 3.10+ only for the conformance check.
+Requirements: Node.js 20+ (22 recommended). Python 3.10+ only for the interoperability check.
 
 ```bash
 npm install
@@ -18,7 +18,7 @@ npm test                 # all unit and integration tests (Vitest)
 npm run build            # compile packages with tsc
 npm run dev:site         # website on http://localhost:5173
 node scripts/benchmark-watermark.mjs   # watermark robustness (after build)
-pip install c2pa-python && npm run conformance   # validate output with the C2PA reference implementation
+pip install c2pa-python && npm run interop   # validate output with the C2PA reference implementation
 ```
 
 Repository layout:
@@ -35,7 +35,7 @@ docs            guides and specifications
 ## Guidelines
 
 - TypeScript strict mode, ESM, no native dependencies in `core`: it must run in browsers and edge runtimes.
-- Add tests with every change; keep the conformance check green.
+- Add tests with every change; keep the interoperability check green.
 - Commit messages follow [Conventional Commits](https://www.conventionalcommits.org) (`feat(core): …`, `fix(ui): …`).
 - Be precise about legal claims: Filigrane implements technical measures and never promises compliance.
 

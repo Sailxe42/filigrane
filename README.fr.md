@@ -49,7 +49,7 @@ npx filigrane scan . --format markdown   # rapport de transparence du projet
 npx filigrane verify image.jpg           # vérifier un fichier
 ```
 
-Le reste de la documentation (fonctionnement, robustesse mesurée, conformité, feuille de route) est dans le [README en anglais](README.md). Un guide de l'article 50 pour les développeurs est disponible en [français](docs/article-50.fr.md).
+Le reste de la documentation (fonctionnement, robustesse mesurée, interopérabilité, feuille de route) est dans le [README en anglais](README.md). Un guide de l'article 50 pour les développeurs est disponible en [français](docs/article-50.fr.md).
 
 ## Mentions légales
 
