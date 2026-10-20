@@ -57,17 +57,16 @@ jobs:
       - run: node packages/cli/dist/cli.js scan examples --format markdown >> "$GITHUB_STEP_SUMMARY"
 
   action:
-    name: Run the GitHub Action on the examples
+    name: Run the GitHub Action like a user would
     runs-on: ubuntu-latest
     steps:
+      # Check out the action in a subfolder: at the root of this repository, npx would
+      # resolve "filigrane" to the local workspace instead of the published CLI.
       - uses: actions/checkout@v5
-      # Inside this repository, npx resolves "filigrane" to the local workspace: build it first.
-      - uses: actions/setup-node@v5
         with:
-          node-version: 22
-          cache: npm
-      - run: npm ci && npm run build
-      - uses: ./
+          path: filigrane-action
+      - run: cp -r filigrane-action/examples examples
+      - uses: ./filigrane-action
         with:
           path: examples
           fail-on: never
