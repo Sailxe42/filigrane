@@ -16,13 +16,24 @@ inputs:
     description: 'Upload results to GitHub code scanning (needs "security-events: write").'
     default: 'true'
   version:
-    description: 'Version of the filigrane CLI to run from npm.'
-    default: 'latest'
+    description: 'Version (or range) of the filigrane CLI to run from npm.'
+    default: '0'
 
 runs:
   using: 'composite'
   steps:
-    - uses: actions/setup-node@v5
+    # Only install Node.js when the runner lacks Node 20+, so the job keeps its own Node version.
+    - id: node
+      shell: bash
+      run: |
+        if command -v node >/dev/null && [ "$(node -p 'process.versions.node.split(".")[0]')" -ge 20 ]; then
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "ok=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - if: ${{ steps.node.outputs.ok != 'true' }}
+      uses: actions/setup-node@v5
       with:
         node-version: '22'
 
@@ -31,22 +42,29 @@ runs:
       env:
         FG_PATH: ${{ inputs.path }}
         FG_VERSION: ${{ inputs.version }}
+        FG_FAIL_ON: ${{ inputs.fail-on }}
+        FG_OUT: ${{ runner.temp }}/filigrane
       run: |
-        npx --yes "filigrane@${FG_VERSION}" scan "$FG_PATH" --format markdown --output filigrane-report.md --fail-on never
-        npx --yes "filigrane@${FG_VERSION}" scan "$FG_PATH" --format sarif --output filigrane.sarif --fail-on never
-        cat filigrane-report.md >> "$GITHUB_STEP_SUMMARY"
+        mkdir -p "$FG_OUT"
+        npx --yes "filigrane@${FG_VERSION}" scan "$FG_PATH" --format sarif --output "$FG_OUT/filigrane.sarif" --fail-on never
+        npx --yes "filigrane@${FG_VERSION}" scan "$FG_PATH" --format markdown --output "$FG_OUT/report.md" --fail-on "$FG_FAIL_ON" && status=0 || status=$?
+        cat "$FG_OUT/report.md" >> "$GITHUB_STEP_SUMMARY"
+        echo "status=$status" > "$FG_OUT/status"
 
     - name: Upload SARIF
       if: ${{ inputs.upload-sarif == 'true' }}
       uses: github/codeql-action/upload-sarif@v4
       with:
-        sarif_file: filigrane.sarif
+        sarif_file: ${{ runner.temp }}/filigrane/filigrane.sarif
         category: filigrane
 
     - name: Enforce
       shell: bash
       env:
-        FG_PATH: ${{ inputs.path }}
-        FG_VERSION: ${{ inputs.version }}
-        FG_FAIL_ON: ${{ inputs.fail-on }}
-      run: npx --yes "filigrane@${FG_VERSION}" scan "$FG_PATH" --fail-on "$FG_FAIL_ON"
+        FG_OUT: ${{ runner.temp }}/filigrane
+      run: |
+        status=$(sed -n 's/^status=//p' "$FG_OUT/status")
+        if [ "$status" != "0" ]; then
+          echo "::error::Filigrane found AI transparency issues (see the job summary)."
+          exit 1
+        fi

@@ -55,3 +55,14 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: node packages/cli/dist/cli.js scan examples --format markdown >> "$GITHUB_STEP_SUMMARY"
+
+  action:
+    name: Run the GitHub Action on the examples
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./
+        with:
+          path: examples
+          fail-on: never
+          upload-sarif: 'false'
