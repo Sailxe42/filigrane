@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Filigrane — open-source AI transparency for the EU AI Act</title>
+    <meta name="description" content="Open-source TypeScript toolkit for EU AI Act Article 50: mark AI-generated images with C2PA + invisible watermark + IPTC, disclose chatbots in 24 EU languages, verify any file in your browser." />
+    <meta property="og:title" content="Filigrane — AI transparency in an afternoon" />
+    <meta property="og:description" content="Mark, label and verify AI-generated content. Open source, conformance-tested against the C2PA reference implementation." />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main" data-i18n="skip">Skip to content</a>
+    <header class="nav">
+      <div class="wrap">
+        <a class="brand" href="./" aria-label="Filigrane home">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="8" fill="currentColor" /><path d="M8 12c3-3 5 3 8 0s5 3 8 0M8 17c3-3 5 3 8 0s5 3 8 0M8 22c3-3 5 3 8 0s5 3 8 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" /></svg>
+          Filigrane
+        </a>
+        <nav class="nav-links" aria-label="Main">
+          <a href="#how" class="hide-sm" data-i18n="nav.how">How it works</a>
+          <a href="#code" class="hide-sm" data-i18n="nav.code">Code</a>
+          <a href="./verify.html" data-i18n="nav.verify">Verify a file</a>
+          <a href="https://github.com/Sailxe42/filigrane" rel="noopener">GitHub</a>
+          <span class="lang-switch" role="group" aria-label="Language">
+            <button type="button" data-lang="en" aria-pressed="true">EN</button>
+            <button type="button" data-lang="fr" aria-pressed="false">FR</button>
+          </span>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero">
+        <div class="wrap">
+          <span class="eyebrow" data-i18n="hero.eyebrow">Open source · EU AI Act Article 50</span>
+          <h1 data-i18n-html="hero.title">Make your AI app <em>transparent</em> in an afternoon</h1>
+          <p class="lead" data-i18n="hero.lead">
+            Mark AI-generated images with two invisible layers, tell users they are talking to an AI in 24 languages, and verify any file — with one TypeScript toolkit that runs everywhere.
+          </p>
+          <div class="cta">
+            <a class="btn btn-primary" href="./verify.html" data-i18n="hero.verify">Verify a file</a>
+            <a class="btn btn-ghost" href="#code" data-i18n="hero.start">Get started</a>
+          </div>
+          <div class="install"><span>npm install @filigrane/core @filigrane/ui</span><button type="button" data-copy="npm install @filigrane/core @filigrane/ui" data-i18n="copy">Copy</button></div>
+          <p class="deadline" id="deadline"></p>
+        </div>
+      </section>
+
+      <section class="alt" id="obligations">
+        <div class="wrap">
+          <div class="section-head">
+            <h2 data-i18n="obl.title">Three obligations, one toolkit</h2>
+            <p data-i18n="obl.lead">Article 50 of the AI Act applies since 2 August 2026, with fines up to €15 million or 3 % of worldwide turnover.</p>
+          </div>
+          <div class="grid grid-3">
+            <article class="card">
+              <span class="tag">Art. 50(1)</span>
+              <h3 data-i18n="obl.chat.title">Disclose chatbots</h3>
+              <p data-i18n="obl.chat.body">People must know they are interacting with an AI system, at the latest at the first interaction.</p>
+              <p class="module">&lt;ai-disclosure&gt;</p>
+            </article>
+            <article class="card">
+              <span class="tag">Art. 50(2)</span>
+              <h3 data-i18n="obl.mark.title">Mark generated content</h3>
+              <p data-i18n="obl.mark.body">Outputs must be machine-readable and detectable as AI-generated. The Code of Practice expects at least two marking layers.</p>
+              <p class="module">markImage() · markText()</p>
+            </article>
+            <article class="card">
+              <span class="tag">Art. 50(4)</span>
+              <h3 data-i18n="obl.label.title">Label deepfakes and AI text</h3>
+              <p data-i18n="obl.label.body">Deployers must visibly label deepfakes and AI text published on matters of public interest.</p>
+              <p class="module">&lt;ai-label&gt;</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="how">
+        <div class="wrap">
+          <div class="section-head">
+            <h2 data-i18n="how.title">Three layers that back each other up</h2>
+            <p data-i18n="how.lead">Metadata can be stripped by a social network. Pixels can be edited. Together, the layers keep the signal alive.</p>
+          </div>
+          <div class="layers">
+            <div class="card layer">
+              <span class="num">1</span>
+              <div>
+                <h3 data-i18n="how.c2pa.title">Signed C2PA manifest (Content Credentials)</h3>
+                <p data-i18n="how.c2pa.body">A cryptographically signed record of how the image was made. Any edit to the file breaks the signature, so tampering is evident.</p>
+                <div class="robust"><span class="pill ok" data-i18n="how.c2pa.p1">Tamper-evident</span><span class="pill ok" data-i18n="how.c2pa.p2">Industry standard</span><span class="pill ko" data-i18n="how.c2pa.p3">Lost if metadata is stripped</span></div>
+              </div>
+            </div>
+            <div class="card layer">
+              <span class="num">2</span>
+              <div>
+                <h3 data-i18n="how.iptc.title">IPTC “Digital Source Type” metadata</h3>
+                <p data-i18n="how.iptc.body">The flag search engines, social networks and photo tools already read to show “AI-generated”.</p>
+                <div class="robust"><span class="pill ok" data-i18n="how.iptc.p1">Widely supported</span><span class="pill ko" data-i18n="how.iptc.p2">Lost if metadata is stripped</span></div>
+              </div>
+            </div>
+            <div class="card layer">
+              <span class="num">3</span>
+              <div>
+                <h3 data-i18n="how.wm.title">Invisible watermark in the pixels</h3>
+                <p data-i18n="how.wm.body">A 64-bit code spread over thousands of frequency coefficients, invisible to the eye (≈ 43 dB PSNR), linked to the manifest.</p>
+                <div class="robust"><span class="pill ok" data-i18n="how.wm.p1">Survives JPEG recompression</span><span class="pill ok" data-i18n="how.wm.p2">Survives resizing</span><span class="pill ok" data-i18n="how.wm.p3">Survives metadata stripping</span><span class="pill ko" data-i18n="how.wm.p4">Not yet: cropping</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="alt" id="code">
+        <div class="wrap">
+          <div class="section-head">
+            <h2 data-i18n="code.title">A few lines in the stack you already use</h2>
+            <p data-i18n="code.lead">Pure TypeScript, zero native dependencies: Node.js, browsers, Deno, Bun and edge runtimes.</p>
+          </div>
+          <div class="tabs" data-tabs>
+            <div class="tablist" role="tablist">
+              <button role="tab" aria-selected="true" aria-controls="tab-node" id="t-node">Node / Next.js</button>
+              <button role="tab" aria-selected="false" aria-controls="tab-html" id="t-html">HTML / React / Vue</button>
+              <button role="tab" aria-selected="false" aria-controls="tab-cli" id="t-cli">CLI</button>
+              <button role="tab" aria-selected="false" aria-controls="tab-ci" id="t-ci">GitHub Action</button>
+            </div>
+            <pre class="code" role="tabpanel" id="tab-node" aria-labelledby="t-node"><span class="k">import</span> { createLocalSigner, markImage } <span class="k">from</span> <span class="s">'@filigrane/core'</span>;
+
+<span class="k">const</span> signer = <span class="k">await</span> createLocalSigner({ certificate, privateKey });
+
+<span class="c">// After your model returns an image:</span>
+<span class="k">const</span> { bytes, layers } = <span class="k">await</span> markImage(png, {
+  signer,
+  model: { name: <span class="s">'gpt-image-1'</span> },
+});
+<span class="c">// layers → ['watermark', 'metadata', 'c2pa']</span></pre>
+            <pre class="code" role="tabpanel" id="tab-html" aria-labelledby="t-html" hidden><span class="k">import</span> <span class="s">'@filigrane/ui'</span>;
+
+<span class="c">&lt;!-- Chatbot banner, in the page language (24 EU languages) --&gt;</span>
+&lt;ai-disclosure model=<span class="s">"Mistral Large"</span> dismissible&gt;&lt;/ai-disclosure&gt;
+
+<span class="c">&lt;!-- Label on AI images or texts --&gt;</span>
+&lt;ai-label kind=<span class="s">"generated"</span> variant=<span class="s">"overlay"</span>&gt;&lt;/ai-label&gt;</pre>
+            <pre class="code" role="tabpanel" id="tab-cli" aria-labelledby="t-cli" hidden><span class="c"># Find chatbots and generators without transparency measures</span>
+npx filigrane scan . --format markdown
+
+<span class="c"># Mark and verify files</span>
+npx filigrane mark cover.png --model <span class="s">"Flux@1.1"</span> --cert chain.pem --key key.pem
+npx filigrane verify cover.ai.png</pre>
+            <pre class="code" role="tabpanel" id="tab-ci" aria-labelledby="t-ci" hidden><span class="c"># .github/workflows/ai-transparency.yml</span>
+<span class="k">on</span>: [pull_request]
+<span class="k">permissions</span>: { contents: read, security-events: write }
+<span class="k">jobs</span>:
+  scan:
+    <span class="k">runs-on</span>: ubuntu-latest
+    <span class="k">steps</span>:
+      - uses: actions/checkout@v5
+      - uses: <span class="s">Sailxe42/filigrane@v0</span></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="demo">
+        <div class="wrap">
+          <div class="section-head">
+            <h2 data-i18n="demo.title">Live components, every EU language</h2>
+            <p data-i18n="demo.lead">Accessible, themable with CSS variables, and they keep a visible “AI” chip after the banner is dismissed.</p>
+          </div>
+          <div class="demo">
+            <div class="demo-controls">
+              <label for="demo-lang" data-i18n="demo.language">Language</label>
+              <select id="demo-lang"></select>
+            </div>
+            <div id="demo-target">
+              <ai-disclosure model="Demo assistant" dismissible></ai-disclosure>
+            </div>
+            <div class="demo-image" role="img" aria-label="Illustration generated by AI">
+              <ai-label variant="overlay" model="Demo image model"></ai-label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="alt">
+        <div class="wrap facts">
+          <div class="fact"><strong>3</strong><span data-i18n="facts.layers">marking layers</span></div>
+          <div class="fact"><strong>24</strong><span data-i18n="facts.langs">EU languages</span></div>
+          <div class="fact"><strong>0</strong><span data-i18n="facts.native">native dependencies</span></div>
+          <div class="fact"><strong>MIT</strong><span data-i18n="facts.license">free licence</span></div>
+        </div>
+      </section>
+
+      <section id="faq">
+        <div class="wrap">
+          <div class="section-head"><h2 data-i18n="faq.title">Questions</h2></div>
+          <div class="faq">
+            <details>
+              <summary data-i18n="faq.q1">Does Filigrane make me compliant?</summary>
+              <p data-i18n="faq.a1">It implements the technical measures described in the Commission’s Code of Practice: multi-layer marking, detection and visible disclosure. Compliance also depends on your role, your product and how you publish content — this is not legal advice.</p>
+            </details>
+            <details>
+              <summary data-i18n="faq.q2">Which certificate do I sign with?</summary>
+              <p data-i18n="faq.a2">For production, use a certificate from a certification authority on the C2PA trust list. For tests, `filigrane keygen` creates a development certificate: manifests are valid but shown as “untrusted”.</p>
+            </details>
+            <details>
+              <summary data-i18n="faq.q3">Does the verifier upload my files?</summary>
+              <p data-i18n="faq.a3">No. Everything runs in your browser; the file never leaves your device.</p>
+            </details>
+            <details>
+              <summary data-i18n="faq.q4">How robust is the watermark?</summary>
+              <p data-i18n="faq.a4">It survives JPEG recompression down to quality 50, resizing, brightness changes and metadata stripping. Cropping and rotation are not supported yet. Every release is tested automatically.</p>
+            </details>
+            <details>
+              <summary data-i18n="faq.q5">Is it compatible with other C2PA tools?</summary>
+              <p data-i18n="faq.a5">Yes. Every commit is checked against the C2PA reference implementation (c2pa-rs), and Filigrane reads manifests produced by other tools.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <p data-i18n="footer.disclaimer">Filigrane is an independent open-source project, not affiliated with the European Commission. It provides technical measures, not legal advice.</p>
+        <p>MIT · <a href="https://github.com/Sailxe42/filigrane">GitHub</a> · <span data-i18n="footer.made">Made in France</span></p>
+      </div>
+    </footer>
+    <script type="module" src="./src/landing.ts"></script>
+  </body>
+</html>

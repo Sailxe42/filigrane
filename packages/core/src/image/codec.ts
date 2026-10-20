@@ -37,9 +37,25 @@ export interface EncodeOptions {
   source?: Uint8Array;
 }
 
+/**
+ * jpeg-js returns `Buffer.from(...)` whenever a CommonJS `module` object exists,
+ * which bundlers emulate in browsers where `Buffer` is missing. Provide a scoped
+ * stand-in for the duration of the (synchronous) call only.
+ */
+function encodeJpeg(r: Raster, quality: number): Uint8Array {
+  const g = globalThis as { Buffer?: unknown };
+  const stub = typeof g.Buffer === 'undefined';
+  if (stub) g.Buffer = { from: (x: ArrayLike<number>) => Uint8Array.from(x) };
+  try {
+    return new Uint8Array(jpeg.encode({ data: r.data, width: r.width, height: r.height }, quality).data);
+  } finally {
+    if (stub) delete g.Buffer;
+  }
+}
+
 export function encodeImage(r: Raster, format: ImageFormat, o: EncodeOptions = {}): Uint8Array {
   if (format === 'png') return encodePng(r, o.source && isPng(o.source) ? o.source : undefined);
-  const out = new Uint8Array(jpeg.encode({ data: r.data, width: r.width, height: r.height }, o.quality ?? 92).data);
+  const out = encodeJpeg(r, o.quality ?? 92);
   if (!o.source || !isJpeg(o.source)) return out;
   // Splice the original metadata segments in after the encoder's JFIF (APP0) header.
   const segs = jpegSegments(out);
