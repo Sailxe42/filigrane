@@ -38,6 +38,7 @@ export function jpegSegments(b: Uint8Array): JpegSegment[] {
   while (o < b.length) {
     if (b[o] !== 0xff) throw new Error(`Invalid JPEG marker at offset ${o}`);
     while (b[o] === 0xff) o++; // fill bytes
+    if (o >= b.length) throw new Error('Truncated JPEG marker');
     const marker = b[o];
     const start = o - 1;
     o++;
@@ -46,6 +47,7 @@ export function jpegSegments(b: Uint8Array): JpegSegment[] {
       segs.push({ marker, start, end: o, dataStart: o });
       continue;
     }
+    if (o + 2 > b.length) throw new Error('Truncated JPEG segment');
     const len = readU16(b, o);
     if (len < 2 || o + len > b.length) throw new Error('Truncated JPEG segment');
     segs.push({ marker, start, end: o + len, dataStart: o + 2 });

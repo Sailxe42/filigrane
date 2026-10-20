@@ -1,5 +1,5 @@
 /** Pure TypeScript PNG decoder/encoder (8-bit RGBA output, all standard colour types, Adam7). */
-import { unzlibSync, zlibSync } from 'fflate';
+import { Unzlib, zlibSync } from 'fflate';
 import { concat, readU32 } from '../util/bytes.ts';
 import { makeChunk, PNG_SIGNATURE, pngChunks } from '../containers/png.ts';
 import type { Raster } from './raster.ts';
@@ -50,6 +50,30 @@ function unfilter(data: Uint8Array, offset: number, width: number, height: numbe
   return { pixels: out, next: o };
 }
 
+/**
+ * Inflates at most `limit` bytes. A tiny IDAT can expand to gigabytes (a "zlib
+ * bomb"), so decompression stops as soon as the size implied by IHDR is reached.
+ */
+function inflateLimited(data: Uint8Array, limit: number): Uint8Array {
+  const out = new Uint8Array(limit);
+  let size = 0;
+  const z = new Unzlib((chunk) => {
+    const n = Math.min(chunk.length, limit - size);
+    out.set(chunk.subarray(0, n), size);
+    size += n;
+  });
+  const STEP = 16384;
+  for (let i = 0; i < data.length && size < limit; i += STEP) z.push(data.subarray(i, i + STEP), i + STEP >= data.length);
+  return out.subarray(0, size);
+}
+
+/** Bytes of filtered scanlines (one filter byte per row) for the whole image. */
+function inflatedSize(width: number, height: number, bitsPerPixel: number, interlace: boolean): number {
+  const rows = (w: number, h: number) => (w > 0 && h > 0 ? (Math.ceil((w * bitsPerPixel) / 8) + 1) * h : 0);
+  if (!interlace) return rows(width, height);
+  return ADAM7.reduce((sum, [x0, y0, dx, dy]) => sum + rows(Math.ceil((width - x0) / dx), Math.ceil((height - y0) / dy)), 0);
+}
+
 export function decodePng(b: Uint8Array): Raster {
   const chunks = pngChunks(b);
   const ihdr = chunks.find((c) => c.type === 'IHDR');
@@ -61,11 +85,13 @@ export function decodePng(b: Uint8Array): Raster {
   const interlace = ihdr.data[12];
   const channels = { 0: 1, 2: 3, 3: 1, 4: 2, 6: 4 }[colorType];
   if (!channels) throw new Error(`Unsupported PNG colour type ${colorType}`);
-  if (width * height > 100_000_000) throw new Error('PNG too large');
+  if (![1, 2, 4, 8, 16].includes(depth)) throw new Error(`Unsupported PNG bit depth ${depth}`);
+  if (width === 0 || height === 0 || width * height > 100_000_000) throw new Error('PNG too large or empty');
 
   const palette = chunks.find((c) => c.type === 'PLTE')?.data;
   const trns = chunks.find((c) => c.type === 'tRNS')?.data;
-  const data = unzlibSync(concat(chunks.filter((c) => c.type === 'IDAT').map((c) => c.data)));
+  const idat = concat(chunks.filter((c) => c.type === 'IDAT').map((c) => c.data));
+  const data = inflateLimited(idat, inflatedSize(width, height, channels * depth, !!interlace));
   const bpp = Math.max(1, (channels * depth) >> 3);
   const out = new Uint8Array(width * height * 4);
   const maxVal = (1 << depth) - 1;

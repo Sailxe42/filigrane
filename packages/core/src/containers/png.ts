@@ -83,15 +83,17 @@ export function readPngXmp(b: Uint8Array): string | undefined {
   const c = pngChunks(b).find(isXmpChunk);
   if (!c) return undefined;
   // keyword \0 compressionFlag compressionMethod languageTag \0 translatedKeyword \0 text
+  const d = c.data;
   let o = XMP_KEYWORD.length + 1;
-  const compressed = c.data[o];
+  const compressed = d[o];
   o += 2;
-  while (c.data[o] !== 0) o++;
-  o++;
-  while (c.data[o] !== 0) o++;
-  o++;
+  for (let field = 0; field < 2; field++) {
+    while (o < d.length && d[o] !== 0) o++;
+    if (o >= d.length) return undefined; // malformed chunk
+    o++;
+  }
   if (compressed) return undefined; // compressed XMP is not used by C2PA tools; ignore
-  return textDecoder.decode(c.data.subarray(o));
+  return textDecoder.decode(d.subarray(o));
 }
 
 export function writePngXmp(b: Uint8Array, xmp: string): Uint8Array {

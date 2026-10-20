@@ -135,21 +135,57 @@ function generatorName(v: unknown): string | undefined {
   return undefined;
 }
 
-async function checkChain(certs: Certificate[], anchors: Certificate[]): Promise<boolean> {
+/** A certificate may issue others only if it is a CA allowed to sign certificates. */
+function canIssue(cert: Certificate, now: Date): boolean {
+  return cert.isCA && (cert.keyUsage.size === 0 || cert.keyUsage.has('keyCertSign')) && now >= cert.notBefore && now <= cert.notAfter;
+}
+
+async function checkChain(certs: Certificate[], anchors: Certificate[], now: Date): Promise<boolean> {
   for (let i = 0; i < certs.length; i++) {
     const cert = certs[i];
     for (const anchor of anchors) {
       if (equalBytes(cert.der, anchor.der)) return true;
-      if (await verifyIssuedBy(cert, anchor).catch(() => false)) return true;
+      if (canIssue(anchor, now) && (await verifyIssuedBy(cert, anchor).catch(() => false))) return true;
     }
     const next = certs[i + 1];
-    if (!next || !(await verifyIssuedBy(cert, next).catch(() => false))) return false;
+    if (!next || !canIssue(next, now) || !(await verifyIssuedBy(cert, next).catch(() => false))) return false;
   }
   return false;
 }
 
+interface Exclusion {
+  start: number;
+  length: number;
+}
+
+/**
+ * Exclusions must only skip the bytes of the embedded manifest store: otherwise a
+ * signer could leave parts of the image unprotected.
+ */
+function exclusionsValid(exclusions: unknown, ranges: { start: number; end: number }[], size: number): exclusions is Exclusion[] {
+  if (!Array.isArray(exclusions)) return false;
+  // A large store spans several adjacent JPEG segments: merge touching ranges.
+  const merged: { start: number; end: number }[] = [];
+  for (const r of [...ranges].sort((a, b) => a.start - b.start)) {
+    const last = merged[merged.length - 1];
+    if (last && r.start <= last.end) last.end = Math.max(last.end, r.end);
+    else merged.push({ ...r });
+  }
+  ranges = merged;
+  let previousEnd = 0;
+  for (const ex of [...exclusions].sort((a, b) => a?.start - b?.start)) {
+    if (!ex || !Number.isSafeInteger(ex.start) || !Number.isSafeInteger(ex.length) || ex.start < 0 || ex.length < 0) return false;
+    const end = ex.start + ex.length;
+    if (ex.start < previousEnd || end > size) return false;
+    if (!ranges.some((r) => ex.start >= r.start && end <= r.end)) return false;
+    previousEnd = end;
+  }
+  return true;
+}
+
 async function validateManifest(
   asset: Uint8Array,
+  ranges: { start: number; end: number }[],
   store: SuperBox,
   manifest: SuperBox,
   opts: ReadOptions,
@@ -160,43 +196,47 @@ async function validateManifest(
   const claimBox = findChild(manifest, LABEL.claimV2) ?? findChild(manifest, LABEL.claimV1);
   const claimVersion: 1 | 2 = claimBox?.desc.label === LABEL.claimV2 ? 2 : 1;
   const claimBytes = claimBox && contentOf(claimBox, 'cbor')?.data;
-  const claim = (claimBytes ? decodeCbor(claimBytes) : {}) as Record<string, unknown>;
+  const decoded = claimBytes ? decodeCbor(claimBytes) : {};
+  const claim = (decoded && typeof decoded === 'object' && !Array.isArray(decoded) ? decoded : {}) as Record<string, unknown>;
   if (!claimBytes) add('claim.missing', false, 'The manifest has no claim');
 
-  const assertionStore = findChild(manifest, LABEL.assertionStore);
-  const assertions = (assertionStore?.children ?? []).filter((c): c is SuperBox => c.kind === 'super');
-
-  // 1. Hashed URIs
-  const uris = [
-    ...((claim.created_assertions as HashedUri[]) ?? []),
-    ...((claim.gathered_assertions as HashedUri[]) ?? []),
-    ...((claim.assertions as HashedUri[]) ?? []),
-  ];
+  // 1. Hashed URIs. Only assertions referenced by the signed claim, with a matching
+  // hash, are used below: anything else in the store is unsigned and ignored.
+  const list = (v: unknown) => (Array.isArray(v) ? (v as HashedUri[]) : []);
+  const uris = [...list(claim.created_assertions), ...list(claim.gathered_assertions), ...list(claim.assertions)];
+  const assertions: SuperBox[] = [];
   for (const uri of uris) {
-    const box = resolveAssertion(store, manifest, uri.url);
+    const box = typeof uri?.url === 'string' ? resolveAssertion(store, manifest, uri.url) : undefined;
     if (!box) {
-      add('assertion.missing', false, `Assertion not found: ${uri.url}`);
+      add('assertion.missing', false, `Assertion not found: ${String(uri?.url)}`);
       continue;
     }
     const actual = await digest(uri.alg ?? str(claim.alg), superboxPayload(box));
-    const ok = equalBytes(actual, uri.hash);
+    const ok = uri.hash instanceof Uint8Array && equalBytes(actual, uri.hash);
     add(ok ? 'assertion.hashedURI.match' : 'assertion.hashedURI.mismatch', ok, `${box.desc.label}`);
+    if (ok && !assertions.includes(box)) assertions.push(box);
   }
 
   // 2. Hard binding
-  const hashBox = assertions.find((a) => a.desc.label === LABEL.hashData || a.desc.label?.startsWith(`${LABEL.hashData}__`));
+  const isHashData = (a: SuperBox) => a.desc.label === LABEL.hashData || !!a.desc.label?.startsWith(`${LABEL.hashData}__`);
+  const hashBox = assertions.find(isHashData);
   if (hashBox) {
-    const hd = assertionData(hashBox) as { exclusions?: { start: number; length: number }[]; alg?: string; hash?: Uint8Array };
-    const parts: Uint8Array[] = [];
-    let pos = 0;
-    for (const ex of [...(hd.exclusions ?? [])].sort((a, b) => a.start - b.start)) {
-      parts.push(asset.subarray(pos, ex.start));
-      pos = ex.start + ex.length;
+    const hd = assertionData(hashBox) as { exclusions?: unknown; alg?: string; hash?: Uint8Array } | undefined;
+    const exclusions = hd?.exclusions ?? [];
+    if (!exclusionsValid(exclusions, ranges, asset.length)) {
+      add('assertion.dataHash.mismatch', false, 'The signed hash skips bytes outside the manifest');
+    } else {
+      const parts: Uint8Array[] = [];
+      let pos = 0;
+      for (const ex of [...exclusions].sort((a, b) => a.start - b.start)) {
+        parts.push(asset.subarray(pos, ex.start));
+        pos = ex.start + ex.length;
+      }
+      parts.push(asset.subarray(pos));
+      const actual = await digest(hd?.alg ?? str(claim.alg), concat(parts));
+      const ok = hd?.hash instanceof Uint8Array && equalBytes(actual, hd.hash);
+      add(ok ? 'assertion.dataHash.match' : 'assertion.dataHash.mismatch', ok, ok ? 'File content matches the signed hash' : 'The file was modified after signing');
     }
-    parts.push(asset.subarray(pos));
-    const actual = await digest(hd.alg ?? str(claim.alg), concat(parts));
-    const ok = !!hd.hash && equalBytes(actual, hd.hash);
-    add(ok ? 'assertion.dataHash.match' : 'assertion.dataHash.mismatch', ok, ok ? 'File content matches the signed hash' : 'The file was modified after signing');
   } else if (assertions.some((a) => a.desc.label?.startsWith('c2pa.hash.'))) {
     add('assertion.hardBinding.unsupported', false, 'This hard-binding type is not supported yet');
   } else {
@@ -228,7 +268,7 @@ async function validateManifest(
         const profileOk = !leaf.isCA && leaf.keyUsage.has('digitalSignature') && leaf.extKeyUsage.some((e) => C2PA_SIGNING_EKUS.includes(e));
         if (!profileOk) add('signingCredential.invalid', false, 'Signing certificate does not meet the C2PA certificate profile');
         if (opts.trustAnchors?.length) {
-          signature.trusted = await checkChain(cose.certificates, opts.trustAnchors.map(parseCertificate));
+          signature.trusted = await checkChain(cose.certificates, opts.trustAnchors.map(parseCertificate), now);
           add(signature.trusted ? 'signingCredential.trusted' : 'signingCredential.untrusted', signature.trusted, signature.trusted ? 'Signer chains to a trusted anchor' : 'Signer is not on the trust list');
         }
       }
@@ -302,7 +342,7 @@ export async function readC2pa(asset: Uint8Array, container: AssetContainer, opt
     return {
       present: true,
       manifests: manifests.map((m) => m.desc.label ?? ''),
-      active: await validateManifest(asset, store, active, opts),
+      active: await validateManifest(asset, found.ranges, store, active, opts),
     };
   } catch (e) {
     return { present: true, manifests: [], error: `Malformed manifest store: ${(e as Error).message}` };

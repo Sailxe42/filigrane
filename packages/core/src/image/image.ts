@@ -20,7 +20,7 @@ import { type DetectResult, detectWatermark, embedWatermark, payloadIdFrom, WATE
 import { mergeXmp, readXmpAiInfo, type XmpReport } from '../xmp/xmp.ts';
 import { canProcessPixels, decodeImageAsync, detectFormat, encodeImageAsync } from './codec.ts';
 
-export const VERSION = '0.1.0';
+export const VERSION = '0.1.2';
 
 export type AiInvolvement = 'generated' | 'modified';
 
@@ -170,7 +170,13 @@ export async function verifyImage(input: Uint8Array, o: VerifyImageOptions = {})
     trustAnchors: typeof o.trustAnchors === 'string' ? pemToDerList(o.trustAnchors) : o.trustAnchors,
   };
   const c2pa = await readC2pa(input, container, readOpts);
-  const xmp = readXmpAiInfo(container.readXmp(input));
+  let xmpPacket: string | undefined;
+  try {
+    xmpPacket = container.readXmp(input);
+  } catch {
+    // Damaged container: the other layers are still reported.
+  }
+  const xmp = readXmpAiInfo(xmpPacket);
   const metadata = { ...xmp, ai: !!xmp.digitalSourceType && AI_SOURCE_TYPES.has(xmp.digitalSourceType) };
 
   let watermark: DetectResult = { detected: false, confidence: 0, weakBits: 64 };

@@ -50,7 +50,7 @@ export function canProcessPixels(format: ImageFormat): boolean {
 /** Synchronous decoding of the built-in formats (JPEG, PNG). */
 export function decodeImage(b: Uint8Array): Raster {
   if (isJpeg(b)) {
-    const img = jpeg.decode(b, { useTArray: true, formatAsRGBA: true, maxResolutionInMP: 200, maxMemoryUsageInMB: 2048 });
+    const img = jpeg.decode(b, { useTArray: true, formatAsRGBA: true, maxResolutionInMP: 100, maxMemoryUsageInMB: 1024 });
     return { width: img.width, height: img.height, data: img.data };
   }
   if (isPng(b)) return decodePng(b);

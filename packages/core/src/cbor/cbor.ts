@@ -215,7 +215,8 @@ class Decoder {
         }
         if (entries.every(([k]) => typeof k === 'string')) {
           const obj: Record<string, CborValue> = {};
-          for (const [k, v] of entries) obj[k as string] = v;
+          // defineProperty: a "__proto__" key must stay a plain property, never replace the prototype.
+          for (const [k, v] of entries) Object.defineProperty(obj, k as string, { value: v, enumerable: true, writable: true, configurable: true });
           return obj;
         }
         return new Map(entries);

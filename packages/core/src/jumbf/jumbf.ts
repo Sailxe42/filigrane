@@ -33,7 +33,11 @@ export interface SuperBox {
   children: JumbfNode[];
   /** Byte range of the whole superbox inside the buffer it was parsed from. */
   range?: { start: number; end: number; payloadStart: number };
+  /** Original payload bytes of a parsed superbox (hashes are computed over these). */
+  raw?: Uint8Array;
 }
+
+const MAX_DEPTH = 32;
 
 export type JumbfNode = SuperBox | ContentBox;
 
@@ -84,6 +88,7 @@ function parseDescription(b: Uint8Array, start: number, end: number): JumbfDescr
     o = z + 1;
   }
   if (toggles & TOGGLE_ID) {
+    if (o + 4 > end) throw new Error('Truncated JUMBF description box');
     desc.id = readU32(b, o);
     o += 4;
   }
@@ -97,14 +102,21 @@ function parseDescription(b: Uint8Array, start: number, end: number): JumbfDescr
   return desc;
 }
 
-function parseSuper(b: Uint8Array, box: RawBox): SuperBox {
+function parseSuper(b: Uint8Array, box: RawBox, depth = 0): SuperBox {
+  if (depth > MAX_DEPTH) throw new Error('JUMBF nesting too deep');
   const inner = readBoxes(b, box.payloadStart, box.end);
   if (!inner.length || inner[0].type !== 'jumd') throw new Error('JUMBF superbox without description box');
   const desc = parseDescription(b, inner[0].payloadStart, inner[0].end);
   const children: JumbfNode[] = inner.slice(1).map((c) =>
-    c.type === 'jumb' ? parseSuper(b, c) : { kind: 'content', type: c.type, data: b.slice(c.payloadStart, c.end) },
+    c.type === 'jumb' ? parseSuper(b, c, depth + 1) : { kind: 'content', type: c.type, data: b.slice(c.payloadStart, c.end) },
   );
-  return { kind: 'super', desc, children, range: { start: box.start, end: box.end, payloadStart: box.payloadStart } };
+  return {
+    kind: 'super',
+    desc,
+    children,
+    range: { start: box.start, end: box.end, payloadStart: box.payloadStart },
+    raw: b.subarray(box.payloadStart, box.end),
+  };
 }
 
 /** Parses a buffer that starts with a JUMBF superbox (e.g. a C2PA manifest store). */
@@ -144,9 +156,12 @@ export function serializeJumbf(node: SuperBox): Uint8Array {
   return boxBytes('jumb', concat(parts));
 }
 
-/** Payload of a superbox (description box + children), i.e. the box without its 8-byte header. */
+/**
+ * Payload of a superbox (description box + children), i.e. the box without its header.
+ * Parsed boxes return their original bytes, so hashes match exactly what was signed.
+ */
 export function superboxPayload(node: SuperBox): Uint8Array {
-  return serializeJumbf(node).subarray(8);
+  return node.raw ?? serializeJumbf(node).subarray(8);
 }
 
 export function findChild(node: SuperBox, label: string): SuperBox | undefined {

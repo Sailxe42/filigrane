@@ -90,7 +90,8 @@ export function time(d: Date): Uint8Array {
 
 // ---------------------------------------------------------------- parsing
 
-function parseAt(b: Uint8Array, o: number, end: number): { node: Asn1Node; next: number } {
+function parseAt(b: Uint8Array, o: number, end: number, depth = 0): { node: Asn1Node; next: number } {
+  if (depth > 32) throw new Error('DER nesting too deep');
   if (o + 2 > end) throw new Error('Truncated DER');
   const tag = b[o];
   let len = b[o + 1];
@@ -98,6 +99,7 @@ function parseAt(b: Uint8Array, o: number, end: number): { node: Asn1Node; next:
   if (len & 0x80) {
     const n = len & 0x7f;
     if (n === 0 || n > 4) throw new Error('Unsupported DER length');
+    if (o + 2 + n > end) throw new Error('Truncated DER');
     len = 0;
     for (let i = 0; i < n; i++) len = len * 256 + b[o + 2 + i];
     hdr += n;
@@ -111,7 +113,7 @@ function parseAt(b: Uint8Array, o: number, end: number): { node: Asn1Node; next:
   if (constructed) {
     let p = vs;
     while (p < ve) {
-      const r = parseAt(b, p, ve);
+      const r = parseAt(b, p, ve, depth + 1);
       children.push(r.node);
       p = r.next;
     }
