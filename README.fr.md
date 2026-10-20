@@ -27,11 +27,11 @@ Filigrane transforme ces obligations en quelques lignes de TypeScript.
 ## Démarrage rapide
 
 ```bash
-npm install @filigrane/core @filigrane/ui
+npm install @filigranejs/core @filigranejs/ui
 ```
 
 ```ts
-import { createLocalSigner, markImage } from '@filigrane/core';
+import { createLocalSigner, markImage } from '@filigranejs/core';
 
 const signer = await createLocalSigner({ certificate: process.env.FILIGRANE_CERT, privateKey: process.env.FILIGRANE_KEY });
 const { bytes, layers } = await markImage(image, { signer, model: { name: 'gpt-image-1' } });
@@ -39,7 +39,7 @@ const { bytes, layers } = await markImage(image, { signer, model: { name: 'gpt-i
 ```
 
 ```html
-<script type="module">import '@filigrane/ui';</script>
+<script type="module">import '@filigranejs/ui';</script>
 <ai-disclosure lang="fr" model="Assistant support" dismissible></ai-disclosure>
 <ai-label kind="generated" variant="overlay"></ai-label>
 ```

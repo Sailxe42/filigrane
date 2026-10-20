@@ -20,7 +20,7 @@ Since **2 August 2026**, Article 50 of the EU AI Act requires AI providers and d
 Filigrane turns those obligations into a few lines of TypeScript:
 
 ```ts
-import { markImage } from '@filigrane/core';
+import { markImage } from '@filigranejs/core';
 
 const { bytes } = await markImage(png, { signer, model: { name: 'gpt-image-1' } });
 // → invisible watermark + IPTC "AI-generated" metadata + signed C2PA manifest
@@ -47,11 +47,11 @@ const { bytes } = await markImage(png, { signer, model: { name: 'gpt-image-1' } 
 ### 1. Mark AI-generated images (server)
 
 ```bash
-npm install @filigrane/core
+npm install @filigranejs/core
 ```
 
 ```ts
-import { createLocalSigner, markImage } from '@filigrane/core';
+import { createLocalSigner, markImage } from '@filigranejs/core';
 
 const signer = await createLocalSigner({
   certificate: process.env.FILIGRANE_CERT, // PEM chain: signing certificate first
@@ -73,18 +73,18 @@ No certificate yet? `createDevSigner()` (or `npx filigrane keygen`) creates a th
 
 ```ts
 import sharp from 'sharp';
-import { createSharpCodec, registerImageCodec } from '@filigrane/core';
+import { createSharpCodec, registerImageCodec } from '@filigranejs/core';
 registerImageCodec('webp', createSharpCodec(sharp));
 ```
 
 ### 2. Tell users they are talking to an AI
 
 ```bash
-npm install @filigrane/ui
+npm install @filigranejs/ui
 ```
 
 ```ts
-import '@filigrane/ui'; // registers <ai-disclosure> and <ai-label>
+import '@filigranejs/ui'; // registers <ai-disclosure> and <ai-label>
 ```
 
 ```html
@@ -101,7 +101,7 @@ The components follow the page language (`lang` attribute), can be themed with `
 ### 3. Verify any file
 
 ```ts
-import { verifyImage } from '@filigrane/core';
+import { verifyImage } from '@filigranejs/core';
 
 const report = await verifyImage(bytes);
 report.verdict;          // 'ai-generated' | 'ai-modified' | 'no-ai-signal'
@@ -134,8 +134,8 @@ Point it to [`llms.txt`](https://sailxe42.github.io/filigrane/llms.txt): a compa
 
 ```text
 Make this app transparent for EU AI Act Article 50 using Filigrane (https://sailxe42.github.io/filigrane/llms.txt):
-mark every generated image with markImage() from @filigrane/core on the server, add <ai-disclosure> from
-@filigrane/ui to the chat UI, and add `npx filigrane scan . --format markdown` to CI.
+mark every generated image with markImage() from @filigranejs/core on the server, add <ai-disclosure> from
+@filigranejs/ui to the chat UI, and add `npx filigrane scan . --format markdown` to CI.
 ```
 
 ## How it works
@@ -176,8 +176,8 @@ Not supported yet: cropping, rotation, mirroring. Run `npm run build && node scr
 
 | Package | Description |
 | --- | --- |
-| [`@filigrane/core`](packages/core) | Marking, verification, C2PA, watermark, IPTC, text markers |
-| [`@filigrane/ui`](packages/ui) | `<ai-disclosure>` and `<ai-label>` Web Components, 24 languages |
+| [`@filigranejs/core`](packages/core) | Marking, verification, C2PA, watermark, IPTC, text markers |
+| [`@filigranejs/ui`](packages/ui) | `<ai-disclosure>` and `<ai-label>` Web Components, 24 languages |
 | [`filigrane`](packages/cli) | CLI: `mark`, `verify`, `scan`, `keygen` |
 | [`apps/site`](apps/site) | Website, online verifier and playground |
 

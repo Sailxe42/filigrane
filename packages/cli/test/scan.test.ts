@@ -30,8 +30,8 @@ describe('scanProject', () => {
   it('passes once the disclosure and marking are in place', async () => {
     const r = await scanProject(
       await project({
-        'app/chat.tsx': `import '@filigrane/ui';\n${CHAT}\nexport const Banner = () => <ai-disclosure dismissible />;`,
-        'lib/images.ts': `import { markImage } from '@filigrane/core';\n${IMAGES}`,
+        'app/chat.tsx': `import '@filigranejs/ui';\n${CHAT}\nexport const Banner = () => <ai-disclosure dismissible />;`,
+        'lib/images.ts': `import { markImage } from '@filigranejs/core';\n${IMAGES}`,
       }),
     );
     expect(r.findings.filter((f) => f.level === 'error')).toEqual([]);

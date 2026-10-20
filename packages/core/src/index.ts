@@ -1,5 +1,5 @@
 /**
- * @filigrane/core — mark, label and verify AI-generated content.
+ * @filigranejs/core — mark, label and verify AI-generated content.
  *
  * Pure TypeScript, zero native dependencies: runs in Node.js 20+, browsers,
  * Deno, Bun and edge runtimes (anything with WebCrypto).

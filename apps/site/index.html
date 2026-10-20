@@ -44,7 +44,7 @@
             <a class="btn btn-primary" href="./verify.html" data-i18n="hero.verify">Verify a file</a>
             <a class="btn btn-ghost" href="#code" data-i18n="hero.start">Get started</a>
           </div>
-          <div class="install"><span>npm install @filigrane/core @filigrane/ui</span><button type="button" data-copy="npm install @filigrane/core @filigrane/ui" data-i18n="copy">Copy</button></div>
+          <div class="install"><span>npm install @filigranejs/core @filigranejs/ui</span><button type="button" data-copy="npm install @filigranejs/core @filigranejs/ui" data-i18n="copy">Copy</button></div>
           <p class="deadline" id="deadline"></p>
         </div>
       </section>
@@ -126,7 +126,7 @@
               <button role="tab" aria-selected="false" aria-controls="tab-cli" id="t-cli">CLI</button>
               <button role="tab" aria-selected="false" aria-controls="tab-ci" id="t-ci">GitHub Action</button>
             </div>
-            <pre class="code" role="tabpanel" id="tab-node" aria-labelledby="t-node"><span class="k">import</span> { createLocalSigner, markImage } <span class="k">from</span> <span class="s">'@filigrane/core'</span>;
+            <pre class="code" role="tabpanel" id="tab-node" aria-labelledby="t-node"><span class="k">import</span> { createLocalSigner, markImage } <span class="k">from</span> <span class="s">'@filigranejs/core'</span>;
 
 <span class="k">const</span> signer = <span class="k">await</span> createLocalSigner({ certificate, privateKey });
 
@@ -136,7 +136,7 @@
   model: { name: <span class="s">'gpt-image-1'</span> },
 });
 <span class="c">// layers → ['watermark', 'metadata', 'c2pa']</span></pre>
-            <pre class="code" role="tabpanel" id="tab-html" aria-labelledby="t-html" hidden><span class="k">import</span> <span class="s">'@filigrane/ui'</span>;
+            <pre class="code" role="tabpanel" id="tab-html" aria-labelledby="t-html" hidden><span class="k">import</span> <span class="s">'@filigranejs/ui'</span>;
 
 <span class="c">&lt;!-- Chatbot banner, in the page language (24 EU languages) --&gt;</span>
 &lt;ai-disclosure model=<span class="s">"Mistral Large"</span> dismissible&gt;&lt;/ai-disclosure&gt;

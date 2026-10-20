@@ -1,6 +1,6 @@
 // AI Act Art. 50(2): mark AI-generated images in a machine-readable way (two layers or more).
 import OpenAI from 'openai';
-import { createLocalSigner, markImage } from '@filigrane/core';
+import { createLocalSigner, markImage } from '@filigranejs/core';
 
 const openai = new OpenAI();
 // PEM strings from your secret manager; see "Signing certificates" in the README.

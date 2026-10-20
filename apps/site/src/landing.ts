@@ -1,5 +1,5 @@
-import '@filigrane/ui';
-import { LANGUAGES } from '@filigrane/ui';
+import '@filigranejs/ui';
+import { LANGUAGES } from '@filigranejs/ui';
 import { initLangSwitch, t } from './i18n.ts';
 
 const LANGUAGE_NAMES: Record<string, string> = {

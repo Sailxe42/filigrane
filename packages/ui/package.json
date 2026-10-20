@@ -1,5 +1,5 @@
 {
-  "name": "@filigrane/ui",
+  "name": "@filigranejs/ui",
   "version": "0.1.0",
   "description": "Accessible Web Components to disclose AI to users in the 24 EU languages: chatbot banner and AI-generated labels (EU AI Act Article 50).",
   "license": "MIT",

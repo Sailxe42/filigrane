@@ -8,8 +8,8 @@ export default defineConfig({
   base: './',
   resolve: {
     alias: {
-      '@filigrane/core': src('../../packages/core/src/index.ts'),
-      '@filigrane/ui': src('../../packages/ui/src/index.ts'),
+      '@filigranejs/core': src('../../packages/core/src/index.ts'),
+      '@filigranejs/ui': src('../../packages/ui/src/index.ts'),
     },
   },
   build: {

@@ -24,7 +24,7 @@ export const RULES: Record<string, Rule> = {
     level: 'error',
     article: 'AI Act Art. 50(1)',
     summary: 'Conversational AI without a visible "you are talking to an AI" disclosure',
-    help: 'Show a disclosure at the latest at the first interaction, e.g. <ai-disclosure> from @filigrane/ui.',
+    help: 'Show a disclosure at the latest at the first interaction, e.g. <ai-disclosure> from @filigranejs/ui.',
   },
   'FG002': {
     id: 'FG002',
@@ -32,7 +32,7 @@ export const RULES: Record<string, Rule> = {
     level: 'error',
     article: 'AI Act Art. 50(2)',
     summary: 'AI-generated images without machine-readable marking',
-    help: 'Mark outputs with at least two layers (e.g. markImage() from @filigrane/core: C2PA + watermark + IPTC).',
+    help: 'Mark outputs with at least two layers (e.g. markImage() from @filigranejs/core: C2PA + watermark + IPTC).',
   },
   'FG003': {
     id: 'FG003',
@@ -110,7 +110,7 @@ export const DEEPFAKE: Pattern[] = [
 /** Evidence that a visible disclosure exists somewhere in the project. */
 export const DISCLOSURE_EVIDENCE: RegExp[] = [
   /<ai-disclosure\b/,
-  /@filigrane\/ui/,
+  /@filigranejs\/ui/,
   /\bdisclosureText\s*\(/,
   /\bAiDisclosure\b/,
   /(?:you are|you're) (?:chatting|talking|interacting) with an? (?:AI|artificial intelligence)/i,
@@ -121,7 +121,7 @@ export const DISCLOSURE_EVIDENCE: RegExp[] = [
 /** Evidence that generated images are marked. */
 export const MARKING_EVIDENCE: RegExp[] = [
   /\bmarkImage\s*\(/,
-  /@filigrane\/core/,
+  /@filigranejs\/core/,
   /\bc2pa\b|@contentauth\//i,
   /\bsign[-_]ai[-_]media\b/,
   /\btrustmark\b|\bsynthid\b|\bwatermark\w*\s*\(/i,

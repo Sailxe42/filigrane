@@ -4,7 +4,7 @@
  * throw-away demo certificate, and a "social network" simulation that strips
  * metadata and recompresses.
  */
-import { createCanvasCodec, createDevSigner, decodeImageAsync, encodeImage, markImage, registerImageCodec, type Signer, verifyImage } from '@filigrane/core';
+import { createCanvasCodec, createDevSigner, decodeImageAsync, encodeImage, markImage, registerImageCodec, type Signer, verifyImage } from '@filigranejs/core';
 
 // The browser decodes (and usually encodes) WebP natively.
 registerImageCodec('webp', createCanvasCodec('image/webp'));

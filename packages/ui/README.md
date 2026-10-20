@@ -1,13 +1,13 @@
-# @filigrane/ui
+# @filigranejs/ui
 
 Accessible Web Components to tell users about AI, in the **24 official EU languages** (EU AI Act Article 50). Works with plain HTML, React, Vue, Svelte, Angular…
 
 ```bash
-npm install @filigrane/ui
+npm install @filigranejs/ui
 ```
 
 ```ts
-import '@filigrane/ui'; // registers the elements
+import '@filigranejs/ui'; // registers the elements
 ```
 
 ```html

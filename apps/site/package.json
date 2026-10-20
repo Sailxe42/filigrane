@@ -1,5 +1,5 @@
 {
-  "name": "@filigrane/site",
+  "name": "@filigranejs/site",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -9,8 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@filigrane/core": "0.1.0",
-    "@filigrane/ui": "0.1.0"
+    "@filigranejs/core": "0.1.0",
+    "@filigranejs/ui": "0.1.0"
   },
   "devDependencies": {
     "vite": "^6.4.0"

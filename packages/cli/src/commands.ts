@@ -15,7 +15,7 @@ import {
   type Signer,
   type VerifyImageResult,
   verifyImage,
-} from '@filigrane/core';
+} from '@filigranejs/core';
 import { formatJson, formatMarkdown, formatSarif, formatText } from './scan/report.ts';
 import { scanProject } from './scan/scan.ts';
 import { c } from './term.ts';

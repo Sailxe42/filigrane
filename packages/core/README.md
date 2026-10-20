@@ -1,13 +1,13 @@
-# @filigrane/core
+# @filigranejs/core
 
 Mark, label and verify AI-generated content for the EU AI Act (Article 50): signed **C2PA** manifests, **IPTC** "AI-generated" metadata, an invisible **watermark** that survives recompression and resizing, and invisible text markers. JPEG, PNG and WebP. Pure TypeScript on WebCrypto — Node.js 20+, browsers, Deno, Bun and edge runtimes.
 
 ```bash
-npm install @filigrane/core
+npm install @filigranejs/core
 ```
 
 ```ts
-import { createLocalSigner, markImage, verifyImage, markText } from '@filigrane/core';
+import { createLocalSigner, markImage, verifyImage, markText } from '@filigranejs/core';
 
 const signer = await createLocalSigner({ certificate: process.env.FILIGRANE_CERT, privateKey: process.env.FILIGRANE_KEY });
 const { bytes, layers } = await markImage(png, { signer, model: { name: 'gpt-image-1' } });

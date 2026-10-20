@@ -1,4 +1,4 @@
-import type { VerifyImageResult } from '@filigrane/core';
+import type { VerifyImageResult } from '@filigranejs/core';
 import { t } from './i18n.ts';
 
 function esc(s: unknown): string {

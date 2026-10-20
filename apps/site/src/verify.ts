@@ -1,5 +1,5 @@
-import '@filigrane/ui';
-import { readText, type VerifyImageResult } from '@filigrane/core';
+import '@filigranejs/ui';
+import { readText, type VerifyImageResult } from '@filigranejs/core';
 import { FR, initLangSwitch, t } from './i18n.ts';
 import { renderReport } from './report.ts';
 

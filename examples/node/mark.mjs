@@ -1,7 +1,7 @@
 // Mark every AI-generated image of a folder: node mark.mjs ./generated
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { createDevSigner, createLocalSigner, markImage } from '@filigrane/core';
+import { createDevSigner, createLocalSigner, markImage } from '@filigranejs/core';
 
 const dir = process.argv[2] ?? '.';
 const signer = process.env.FILIGRANE_CERT

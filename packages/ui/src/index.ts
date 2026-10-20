@@ -1,5 +1,5 @@
 /**
- * @filigrane/ui — accessible, multilingual AI disclosure components.
+ * @filigranejs/ui — accessible, multilingual AI disclosure components.
  *
  * Importing this module registers <ai-disclosure> and <ai-label> in browsers.
  */

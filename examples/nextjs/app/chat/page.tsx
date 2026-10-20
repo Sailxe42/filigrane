@@ -1,6 +1,6 @@
 'use client';
 // AI Act Art. 50(1): tell users they are talking to an AI, at the latest at the first interaction.
-import '@filigrane/ui';
+import '@filigranejs/ui';
 import { useChat } from '@ai-sdk/react';
 
 export default function ChatPage() {

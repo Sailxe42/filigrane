@@ -11,7 +11,7 @@ npx filigrane keygen --name "My Company"   # writes .filigrane/dev-chain.pem and
 or in code:
 
 ```ts
-import { createDevSigner } from '@filigrane/core';
+import { createDevSigner } from '@filigranejs/core';
 const signer = await createDevSigner('My Company (development)');
 ```
 
@@ -40,7 +40,7 @@ The CLI reads the same variables: `FILIGRANE_CERT` and `FILIGRANE_KEY` (file pat
 A signer is any object with an algorithm, a certificate chain and a `sign` function, so the private key never has to leave your key management service:
 
 ```ts
-import type { Signer } from '@filigrane/core';
+import type { Signer } from '@filigranejs/core';
 
 const kmsSigner: Signer = {
   alg: 'ES256',
