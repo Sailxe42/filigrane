@@ -1,0 +1,38 @@
+{
+  "name": "@filigrane/core",
+  "version": "0.1.0",
+  "description": "Mark, label and verify AI-generated content: C2PA manifests, IPTC metadata and invisible watermarks in pure TypeScript (Node, browsers, edge runtimes).",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -b"
+  },
+  "keywords": [
+    "ai-act",
+    "article-50",
+    "c2pa",
+    "content-credentials",
+    "watermark",
+    "provenance",
+    "ai-generated",
+    "transparency",
+    "iptc"
+  ],
+  "dependencies": {
+    "fflate": "^0.8.2",
+    "jpeg-js": "^0.4.4"
+  }
+}

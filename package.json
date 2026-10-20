@@ -1,0 +1,25 @@
+{
+  "name": "filigrane-monorepo",
+  "private": true,
+  "type": "module",
+  "description": "Open-source toolkit to make AI apps transparent: EU AI Act Article 50 marking, labelling and verification.",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "vitest run",
+    "typecheck": "tsc -b packages/core packages/ui packages/cli",
+    "dev:site": "npm run dev -w apps/site"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
+  }
+}

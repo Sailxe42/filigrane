@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+*.log
+*.tsbuildinfo
+.DS_Store
+.env
+# Never commit private keys
+*.key
+*.pem
+!packages/core/test/fixtures/**/*.pem
+.filigrane/
+.scratch/
