@@ -3,13 +3,24 @@
   "version": "0.1.0",
   "description": "CLI for AI transparency: mark AI-generated images and text, verify files, and scan projects for EU AI Act Article 50 gaps (SARIF, Markdown reports).",
   "license": "MIT",
+  "author": "Alexis Nieto",
+  "homepage": "https://sailxe42.github.io/filigrane/",
+  "bugs": {
+    "url": "https://github.com/Sailxe42/filigrane/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sailxe42/filigrane.git",
+    "directory": "packages/cli"
+  },
   "type": "module",
   "bin": {
     "filigrane": "./dist/cli.js"
   },
   "files": [
-    "dist",
-    "README.md"
+    "LICENSE",
+    "README.md",
+    "dist"
   ],
   "engines": {
     "node": ">=20"
@@ -28,5 +39,8 @@
     "compliance",
     "sarif",
     "cli"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

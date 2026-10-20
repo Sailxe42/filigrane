@@ -3,6 +3,16 @@
   "version": "0.1.0",
   "description": "Accessible Web Components to disclose AI to users in the 24 EU languages: chatbot banner and AI-generated labels (EU AI Act Article 50).",
   "license": "MIT",
+  "author": "Alexis Nieto",
+  "homepage": "https://sailxe42.github.io/filigrane/",
+  "bugs": {
+    "url": "https://github.com/Sailxe42/filigrane/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sailxe42/filigrane.git",
+    "directory": "packages/ui"
+  },
   "type": "module",
   "sideEffects": [
     "./dist/index.js"
@@ -16,8 +26,9 @@
     }
   },
   "files": [
-    "dist",
-    "README.md"
+    "LICENSE",
+    "README.md",
+    "dist"
   ],
   "scripts": {
     "build": "tsc -b"
@@ -31,5 +42,8 @@
     "chatbot",
     "ai-label",
     "i18n"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

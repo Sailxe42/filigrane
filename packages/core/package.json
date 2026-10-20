@@ -3,6 +3,16 @@
   "version": "0.1.0",
   "description": "Mark, label and verify AI-generated content: C2PA manifests, IPTC metadata and invisible watermarks in pure TypeScript (Node, browsers, edge runtimes).",
   "license": "MIT",
+  "author": "Alexis Nieto",
+  "homepage": "https://sailxe42.github.io/filigrane/",
+  "bugs": {
+    "url": "https://github.com/Sailxe42/filigrane/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sailxe42/filigrane.git",
+    "directory": "packages/core"
+  },
   "type": "module",
   "sideEffects": false,
   "main": "./dist/index.js",
@@ -14,8 +24,9 @@
     }
   },
   "files": [
-    "dist",
-    "README.md"
+    "LICENSE",
+    "README.md",
+    "dist"
   ],
   "scripts": {
     "build": "tsc -b"
@@ -34,5 +45,8 @@
   "dependencies": {
     "fflate": "^0.8.2",
     "jpeg-js": "^0.4.4"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
