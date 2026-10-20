@@ -46,3 +46,4 @@ La Commission européenne a publié le 10 juin 2026 un Code de bonnes pratiques 
 - [Commission européenne — Icônes de l'UE pour l'étiquetage des contenus générés par IA](https://digital-strategy.ec.europa.eu/en/policies/eu-icons-labelling-ai-generated-content)
 - [Goodwin — Les obligations de transparence de l'AI Act sont en vigueur (août 2026)](https://www.goodwinlaw.com/en/insights/publications/2026/08/alerts-technology-dpc-eu-ai-act-transparency-obligations-now-in-force)
 - [Jones Day — Code de bonnes pratiques final (juin 2026)](https://www.jonesday.com/en/insights/2026/06/european-commission-publishes-final-code-of-practice-on-marking-and-labelling-aigenerated-content)
+- [Règlement (UE) 2026/1744 (omnibus numérique sur l’IA) : délai jusqu’au 2 décembre 2026 pour le marquage de l’article 50(2) des systèmes déjà sur le marché](https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=OJ:L_202601744)

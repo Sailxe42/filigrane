@@ -1,6 +1,6 @@
 {
   "name": "@filigranejs/core",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Mark, label and verify AI-generated content: C2PA manifests, IPTC metadata and invisible watermarks in pure TypeScript (Node, browsers, edge runtimes).",
   "license": "MIT",
   "author": "Alexis Nieto",

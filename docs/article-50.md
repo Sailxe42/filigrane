@@ -46,3 +46,4 @@ The European Commission published a Code of Practice on marking and labelling AI
 - [European Commission — EU icons for labelling AI-generated content](https://digital-strategy.ec.europa.eu/en/policies/eu-icons-labelling-ai-generated-content)
 - [Goodwin — EU AI Act transparency obligations are now in force (August 2026)](https://www.goodwinlaw.com/en/insights/publications/2026/08/alerts-technology-dpc-eu-ai-act-transparency-obligations-now-in-force)
 - [Jones Day — Final Code of Practice on marking and labelling (June 2026)](https://www.jonesday.com/en/insights/2026/06/european-commission-publishes-final-code-of-practice-on-marking-and-labelling-aigenerated-content)
+- [Regulation (EU) 2026/1744 (Digital Omnibus on AI): grace period until 2 December 2026 for the Article 50(2) marking of systems already on the market](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=OJ:L_202601744)

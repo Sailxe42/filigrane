@@ -188,7 +188,7 @@ Not supported yet: cropping, rotation, mirroring. Run `npm run build && node scr
 ## Interoperability and tests
 
 - **Interoperability with the reference implementation**: on every commit, CI marks JPEG, PNG and WebP files and validates them with the C2PA reference implementation ([c2pa-rs](https://github.com/contentauth/c2pa-rs), through `c2pa-python`). All of them are reported **Valid**. Filigrane also validates manifests produced by c2pa-rs ([fixture](packages/core/test/fixtures)). This is an interoperability test, not a certification: Filigrane is not on the C2PA Conforming Products List.
-- **85 automated tests**: RFC 8949 CBOR vectors, X.509/COSE, tamper detection, watermark robustness and false positives, components in 24 languages, scanner rules and SARIF output.
+- **92 automated tests**: RFC 8949 CBOR vectors, X.509/COSE, tamper detection, attacks from the security audit (forged assertions, rogue certificates, hostile files), watermark robustness and false positives, components in 24 languages, scanner rules and SARIF output.
 - **CI** on Node.js 20, 22 and 24.
 
 ```bash

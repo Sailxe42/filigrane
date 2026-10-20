@@ -1,6 +1,6 @@
 {
   "name": "filigrane",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "CLI for AI transparency: mark AI-generated images and text, verify files, and scan projects for EU AI Act Article 50 gaps (SARIF, Markdown reports).",
   "license": "MIT",
   "author": "Alexis Nieto",
@@ -29,7 +29,7 @@
     "build": "tsc -b"
   },
   "dependencies": {
-    "@filigranejs/core": "0.1.0"
+    "@filigranejs/core": "0.1.2"
   },
   "keywords": [
     "ai-act",
