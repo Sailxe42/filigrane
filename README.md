@@ -8,6 +8,7 @@
 [![npm @filigranejs/core](https://img.shields.io/npm/v/@filigranejs/core?label=%40filigranejs%2Fcore)](https://www.npmjs.com/package/@filigranejs/core)
 [![npm @filigranejs/ui](https://img.shields.io/npm/v/@filigranejs/ui?label=%40filigranejs%2Fui)](https://www.npmjs.com/package/@filigranejs/ui)
 [![npm filigrane](https://img.shields.io/npm/v/filigrane?label=filigrane%20CLI)](https://www.npmjs.com/package/filigrane)
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-Filigrane%20action-5b3fd6?logo=github)](https://github.com/marketplace/actions/filigrane-ai-transparency-scan)
 [![C2PA](https://img.shields.io/badge/C2PA-tested%20against%20c2pa--rs-5b3fd6)](#interoperability-and-tests)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-zero%20native%20deps-3178c6)](#packages)
