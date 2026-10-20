@@ -4,6 +4,10 @@
 
 **La transparence de l'IA en open source pour l'AI Act européen : marquer, étiqueter et vérifier les contenus générés par IA.**
 
+[![npm @filigranejs/core](https://img.shields.io/npm/v/@filigranejs/core?label=%40filigranejs%2Fcore)](https://www.npmjs.com/package/@filigranejs/core)
+[![npm @filigranejs/ui](https://img.shields.io/npm/v/@filigranejs/ui?label=%40filigranejs%2Fui)](https://www.npmjs.com/package/@filigranejs/ui)
+[![npm filigrane](https://img.shields.io/npm/v/filigrane?label=filigrane%20CLI)](https://www.npmjs.com/package/filigrane)
+
 [Site et vérificateur en ligne](https://sailxe42.github.io/filigrane/) · [English](README.md)
 
 <img src="docs/images/verifier.jpg" alt="Le vérificateur Filigrane affichant une image générée par IA avec un manifeste C2PA valide, des métadonnées IPTC et un filigrane invisible" width="760">
