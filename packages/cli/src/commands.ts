@@ -4,6 +4,8 @@ import path from 'node:path';
 import {
   createDevSigner,
   createLocalSigner,
+  createSharpCodec,
+  registerImageCodec,
   derToPem,
   generateDevCertificateChain,
   markImage,
@@ -19,6 +21,21 @@ import { scanProject } from './scan/scan.ts';
 import { c } from './term.ts';
 
 export const CLI_VERSION = '0.1.0';
+
+/** Uses `sharp` for WebP pixels when it is installed (optional: `npm install sharp`). */
+let codecsReady: Promise<void> | undefined;
+function registerOptionalCodecs(): Promise<void> {
+  codecsReady ??= (async () => {
+    try {
+      const name = 'sharp';
+      const mod = (await import(name)) as { default: Parameters<typeof createSharpCodec>[0] };
+      registerImageCodec('webp', createSharpCodec(mod.default));
+    } catch {
+      // Without sharp, WebP files still get the metadata and C2PA layers.
+    }
+  })();
+  return codecsReady;
+}
 const TEXT_EXT = new Set(['.txt', '.md', '.markdown']);
 
 function isText(file: string): boolean {
@@ -66,6 +83,7 @@ export async function cmdMark(input: string, a: MarkArgs): Promise<number> {
     console.log(`${c.green('✔')} ${output} ${c.dim('(invisible text markers)')}`);
     return 0;
   }
+  await registerOptionalCodecs();
   const bytes = new Uint8Array(await readFile(input));
   const { signer, note } = a.c2pa === false ? {} : await resolveSigner(a);
   const res = await markImage(bytes, {
@@ -81,6 +99,9 @@ export async function cmdMark(input: string, a: MarkArgs): Promise<number> {
   await writeFile(output, res.bytes);
   console.log(`${c.green('✔')} ${output} ${c.dim(`(${res.layers.join(' + ')})`)}`);
   if (note) console.log(c.yellow(`  ! ${note}`));
+  for (const w of res.warnings.filter((x) => !x.startsWith('C2PA layer skipped'))) {
+    console.log(c.yellow(`  ! ${w}${w.includes('webp') ? ' — install sharp to watermark WebP files' : ''}`));
+  }
   if (res.layers.length < 2) console.log(c.yellow('  ! fewer than two marking layers: the Code of Practice expects at least two'));
   return 0;
 }
@@ -104,6 +125,7 @@ function describe(file: string, v: VerifyImageResult): string {
     for (const e of m.validation.filter((x) => !x.ok)) lines.push(c.red(`             ✖ ${e.code}: ${e.message}`));
   } else lines.push(`  C2PA       ${c.dim(v.c2pa.error ?? 'none')}`);
   lines.push(`  Metadata   ${v.metadata.digitalSourceType ? shortSourceType(v.metadata.digitalSourceType) + (v.metadata.aiSystem ? ` · ${v.metadata.aiSystem}` : '') : c.dim('none')}`);
+  for (const w of v.warnings) lines.push(c.yellow(`  ! ${w}`));
   lines.push(
     `  Watermark  ${v.watermark.detected ? `${c.green('detected')} · id ${v.watermark.payload!.id.toString(16).padStart(8, '0')} · confidence ${(v.watermark.confidence * 100).toFixed(0)}%` : c.dim('none')}`,
   );
@@ -111,6 +133,7 @@ function describe(file: string, v: VerifyImageResult): string {
 }
 
 export async function cmdVerify(files: string[], a: VerifyArgs): Promise<number> {
+  await registerOptionalCodecs();
   const trustAnchors = a.trust ? await pemValue(a.trust) : undefined;
   const results: Record<string, unknown> = {};
   for (const file of files) {

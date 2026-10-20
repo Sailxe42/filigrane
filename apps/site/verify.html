@@ -36,9 +36,9 @@
 
       <div class="panel">
         <div class="drop" id="drop" tabindex="0" role="button" aria-describedby="privacy">
-          <strong data-i18n="v.drop">Drop a JPEG or PNG image</strong>
+          <strong data-i18n="v.drop">Drop a JPEG, PNG or WebP image</strong>
           <span data-i18n="v.drop2">or click to choose a file</span>
-          <input type="file" id="file" accept="image/jpeg,image/png" hidden />
+          <input type="file" id="file" accept="image/jpeg,image/png,image/webp" hidden />
         </div>
         <div class="row" style="justify-content:center;margin-top:14px">
           <span class="muted small" data-i18n="v.samples">Or try a sample:</span>
@@ -70,7 +70,7 @@
           <button class="btn btn-primary" id="play-pick" type="button" data-i18n="v.playPick">Choose an image to mark</button>
           <a class="btn btn-ghost" id="play-download" hidden data-i18n="v.download">Download the marked image</a>
           <button class="btn btn-ghost" id="play-launder" type="button" hidden data-i18n="v.launder">Simulate a social network (strip + recompress)</button>
-          <input type="file" id="play-file" accept="image/jpeg,image/png" hidden />
+          <input type="file" id="play-file" accept="image/jpeg,image/png,image/webp" hidden />
         </div>
         <div id="play-result" class="result" aria-live="polite"></div>
       </section>

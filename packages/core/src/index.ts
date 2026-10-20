@@ -45,7 +45,7 @@ export {
 export { signAsset, newManifestLabel, type SignManifestOptions, type AssertionInput, type GeneratorInfo } from './c2pa/builder.ts';
 export { readC2pa, type C2paReport, type ManifestReport, type ValidationEntry, type SignatureInfo, type ActionInfo, type ReadOptions } from './c2pa/reader.ts';
 export { DIGITAL_SOURCE_TYPE, AI_SOURCE_TYPES, LABEL, shortSourceType } from './c2pa/labels.ts';
-export { containerFor, sniffMimeType, jpegContainer, pngContainer, type AssetContainer } from './containers/container.ts';
+export { containerFor, sniffMimeType, jpegContainer, pngContainer, webpContainer, type AssetContainer } from './containers/container.ts';
 
 // Watermark
 export {
@@ -60,5 +60,19 @@ export {
 
 // Metadata & images
 export { buildXmp, mergeXmp, readXmpAiInfo, type XmpAiInfo, type XmpReport } from './xmp/xmp.ts';
-export { decodeImage, encodeImage, detectFormat, type ImageFormat } from './image/codec.ts';
+export {
+  decodeImage,
+  encodeImage,
+  decodeImageAsync,
+  encodeImageAsync,
+  detectFormat,
+  registerImageCodec,
+  canProcessPixels,
+  createCanvasCodec,
+  createSharpCodec,
+  type ImageFormat,
+  type ImageCodec,
+  type EncodeOptions,
+  type SharpLike,
+} from './image/codec.ts';
 export type { Raster } from './image/raster.ts';

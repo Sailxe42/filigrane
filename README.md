@@ -34,9 +34,9 @@ const { bytes } = await markImage(png, { signer, model: { name: 'gpt-image-1' } 
 
 | | |
 | --- | --- |
-| **Three marking layers** | Signed [C2PA](https://c2pa.org) manifest (Content Credentials), IPTC `DigitalSourceType` metadata, and an invisible watermark that survives recompression, resizing and metadata stripping. The Commission's Code of Practice expects at least two. |
+| **Three marking layers** | Signed [C2PA](https://c2pa.org) manifest (Content Credentials), IPTC `DigitalSourceType` metadata, and an invisible watermark that survives recompression, resizing and metadata stripping. The Commission's Code of Practice expects at least two. JPEG, PNG and WebP. |
 | **Verification** | `verifyImage()` checks all three layers, validates signatures and flags tampering. The [online verifier](https://sailxe42.github.io/filigrane/verify.html) runs entirely in the browser. |
-| **Disclosure components** | `<ai-disclosure>` (chatbots, Art. 50(1)) and `<ai-label>` (AI images and texts, Art. 50(4)): accessible Web Components in the 24 official EU languages, for any framework. |
+| **Disclosure components** | `<ai-disclosure>` (chatbots, Art. 50(1)) and `<ai-label>` (AI images and texts, Art. 50(4)) with the official EU icons: accessible Web Components in the 24 official EU languages, for any framework. |
 | **Text marking** | `markText()` adds invisible, paragraph-level markers that survive copy/paste. |
 | **Project scanner** | `filigrane scan` finds chatbots and generators without transparency measures (JS/TS and Python) and reports them as text, JSON, Markdown or SARIF. |
 | **GitHub Action** | Runs the scanner on every pull request and surfaces findings in code scanning. |
@@ -69,6 +69,14 @@ const result = await markImage(imageBytes, {
 
 No certificate yet? `createDevSigner()` (or `npx filigrane keygen`) creates a throw-away chain for development. See [Signing certificates](docs/certificates.md).
 
+**WebP**: the metadata and C2PA layers work out of the box. To watermark WebP pixels, register a codec — `createSharpCodec(sharp)` in Node.js or `createCanvasCodec()` in browsers:
+
+```ts
+import sharp from 'sharp';
+import { createSharpCodec, registerImageCodec } from '@filigrane/core';
+registerImageCodec('webp', createSharpCodec(sharp));
+```
+
 ### 2. Tell users they are talking to an AI
 
 ```bash
@@ -88,7 +96,7 @@ import '@filigrane/ui'; // registers <ai-disclosure> and <ai-label>
 </figure>
 ```
 
-The components follow the page language (`lang` attribute), can be themed with `--fg-ai-*` CSS variables and keep a visible "AI" chip after the banner is dismissed. React typings: [examples/nextjs/global.d.ts](examples/nextjs/global.d.ts).
+The components follow the page language (`lang` attribute), can be themed with `--fg-ai-*` CSS variables and keep a visible "AI" chip after the banner is dismissed. Labels use the [official EU icons](https://digital-strategy.ec.europa.eu/en/policies/eu-icons-labelling-ai-generated-content) (free to use; `variant="eu"` shows the full "AI GENERATED" / "AI MODIFIED" label, `icon="filigrane"` switches to Filigrane's icon). Using the icons does not by itself signal adherence to the Code of Practice. React typings: [examples/nextjs/global.d.ts](examples/nextjs/global.d.ts).
 
 ### 3. Verify any file
 
@@ -175,8 +183,8 @@ Not supported yet: cropping, rotation, mirroring. Run `npm run build && node scr
 
 ## Interoperability and tests
 
-- **Interoperability with the reference implementation**: on every commit, CI marks JPEG and PNG files and validates them with the C2PA reference implementation ([c2pa-rs](https://github.com/contentauth/c2pa-rs), through `c2pa-python`). All of them are reported **Valid**. Filigrane also validates manifests produced by c2pa-rs ([fixture](packages/core/test/fixtures)). This is an interoperability test, not a certification: Filigrane is not on the C2PA Conforming Products List.
-- **75 automated tests**: RFC 8949 CBOR vectors, X.509/COSE, tamper detection, watermark robustness and false positives, components in 24 languages, scanner rules and SARIF output.
+- **Interoperability with the reference implementation**: on every commit, CI marks JPEG, PNG and WebP files and validates them with the C2PA reference implementation ([c2pa-rs](https://github.com/contentauth/c2pa-rs), through `c2pa-python`). All of them are reported **Valid**. Filigrane also validates manifests produced by c2pa-rs ([fixture](packages/core/test/fixtures)). This is an interoperability test, not a certification: Filigrane is not on the C2PA Conforming Products List.
+- **85 automated tests**: RFC 8949 CBOR vectors, X.509/COSE, tamper detection, watermark robustness and false positives, components in 24 languages, scanner rules and SARIF output.
 - **CI** on Node.js 20, 22 and 24.
 
 ```bash
@@ -189,9 +197,10 @@ npm run interop        # needs: pip install c2pa-python
 ## Roadmap
 
 - [ ] Timestamping (RFC 3161) for long-lived signatures
-- [ ] WebP and AVIF; audio (MP3, WAV) and video (MP4) marking
+- [x] WebP (pixels via a registered codec)
+- [ ] AVIF and HEIC; audio (MP3, WAV) and video (MP4) marking
 - [ ] Crop-resistant watermark (v2)
-- [ ] Official EU icons bundled in `<ai-label>`
+- [x] Official EU icons bundled in `<ai-label>`
 - [ ] C2PA text manifests for unstructured text
 - [ ] Hosted verification API
 

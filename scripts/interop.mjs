@@ -10,11 +10,13 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { createDevSigner, encodeImage, markImage } from '../packages/core/dist/index.js';
+import sharp from 'sharp';
+import { createDevSigner, createSharpCodec, encodeImage, markImage, registerImageCodec } from '../packages/core/dist/index.js';
 
 const python = process.env.PYTHON ?? (process.platform === 'win32' ? 'python' : 'python3');
 const dir = mkdtempSync(path.join(os.tmpdir(), 'filigrane-interop-'));
 const signer = await createDevSigner('Filigrane Interop');
+registerImageCodec('webp', createSharpCodec(sharp));
 
 const w = 320;
 const h = 240;
@@ -26,15 +28,22 @@ for (let i = 0; i < w * h; i++) {
   data[i * 4 + 3] = 255;
 }
 
+const inputs = {
+  jpeg: encodeImage({ width: w, height: h, data }, 'jpeg'),
+  png: encodeImage({ width: w, height: h, data }, 'png'),
+  webp: new Uint8Array(await sharp(data, { raw: { width: w, height: h, channels: 4 } }).webp({ quality: 85 }).toBuffer()),
+};
+const ext = { jpeg: 'jpg', png: 'png', webp: 'webp' };
+
 const files = [];
-for (const format of ['jpeg', 'png']) {
+for (const format of ['jpeg', 'png', 'webp']) {
   for (const involvement of ['generated', 'modified']) {
-    const marked = await markImage(encodeImage({ width: w, height: h, data }, format), {
+    const marked = await markImage(inputs[format], {
       signer,
       involvement,
       model: { name: 'Interop Model', version: '1.0' },
     });
-    const file = path.join(dir, `${involvement}.${format === 'jpeg' ? 'jpg' : 'png'}`);
+    const file = path.join(dir, `${involvement}.${ext[format]}`);
     writeFileSync(file, marked.bytes);
     files.push(file);
   }

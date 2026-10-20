@@ -4,7 +4,10 @@
  * throw-away demo certificate, and a "social network" simulation that strips
  * metadata and recompresses.
  */
-import { createDevSigner, decodeImage, encodeImage, markImage, type Signer, verifyImage } from '@filigrane/core';
+import { createCanvasCodec, createDevSigner, decodeImageAsync, encodeImage, markImage, registerImageCodec, type Signer, verifyImage } from '@filigrane/core';
+
+// The browser decodes (and usually encodes) WebP natively.
+registerImageCodec('webp', createCanvasCodec('image/webp'));
 
 let signer: Promise<Signer> | undefined;
 
@@ -21,7 +24,7 @@ async function handle(req: WorkerRequest): Promise<unknown> {
     return { bytes: marked.bytes, mimeType: marked.mimeType, report: await verifyImage(marked.bytes) };
   }
   // Social-network simulation: decode pixels, re-encode as JPEG q75 — all metadata is lost.
-  const laundered = encodeImage(decodeImage(req.bytes), 'jpeg', { quality: 75 });
+  const laundered = encodeImage(await decodeImageAsync(req.bytes), 'jpeg', { quality: 75 });
   return { bytes: laundered, mimeType: 'image/jpeg', report: await verifyImage(laundered) };
 }
 

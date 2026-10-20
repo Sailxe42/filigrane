@@ -6,7 +6,8 @@ from c2pa import Reader
 
 results = []
 for path in sys.argv[1:]:
-    mime = "image/png" if path.lower().endswith(".png") else "image/jpeg"
+    lower = path.lower()
+    mime = "image/png" if lower.endswith(".png") else "image/webp" if lower.endswith(".webp") else "image/jpeg"
     with open(path, "rb") as f:
         reader = Reader(mime, f)
         store = json.loads(reader.json())

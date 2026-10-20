@@ -6,7 +6,7 @@ Guidance for AI assistants contributing to this repository. Humans: see [CONTRIB
 
 - `npm test` — Vitest suite (must stay green)
 - `npm run build` — `tsc -b` for the three packages
-- `npm run interop` — validates marked files with the C2PA reference implementation (needs `pip install c2pa-python`)
+- `npm run interop` — validates marked JPEG, PNG and WebP files with the C2PA reference implementation (needs `pip install c2pa-python`)
 - `node scripts/benchmark-watermark.mjs` — watermark robustness table (after build)
 
 ## Rules

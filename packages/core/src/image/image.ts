@@ -18,7 +18,7 @@ import { pemToDerList } from '../crypto/x509.ts';
 import { toBase64, u32, uuidV4 } from '../util/bytes.ts';
 import { type DetectResult, detectWatermark, embedWatermark, payloadIdFrom, WATERMARK_ALG } from '../watermark/watermark.ts';
 import { mergeXmp, readXmpAiInfo, type XmpReport } from '../xmp/xmp.ts';
-import { decodeImage, detectFormat, encodeImage } from './codec.ts';
+import { canProcessPixels, decodeImageAsync, detectFormat, encodeImageAsync } from './codec.ts';
 
 export const VERSION = '0.1.0';
 
@@ -48,6 +48,8 @@ export interface MarkImageResult {
   bytes: Uint8Array;
   mimeType: string;
   layers: ('watermark' | 'metadata' | 'c2pa')[];
+  /** Layers that could not be applied, and why (e.g. no WebP codec registered). */
+  warnings: string[];
   instanceId: string;
   manifestLabel?: string;
   watermarkId?: number;
@@ -57,13 +59,14 @@ function sourceType(involvement: AiInvolvement | undefined): string {
   return involvement === 'modified' ? DIGITAL_SOURCE_TYPE.compositeWithTrainedAlgorithmicMedia : DIGITAL_SOURCE_TYPE.trainedAlgorithmicMedia;
 }
 
-/** Marks an AI-generated JPEG or PNG image. */
+/** Marks an AI-generated JPEG, PNG or WebP image. */
 export async function markImage(input: Uint8Array, o: MarkImageOptions = {}): Promise<MarkImageResult> {
   const format = detectFormat(input);
-  if (!format) throw new Error('Unsupported image format: JPEG and PNG are supported');
+  if (!format) throw new Error('Unsupported image format: JPEG, PNG and WebP are supported');
   const container = containerFor(input);
   const want = { watermark: true, metadata: true, c2pa: true, ...o.layers };
   const layers: MarkImageResult['layers'] = [];
+  const warnings: string[] = [];
   const instanceId = `xmp:iid:${uuidV4()}`;
   const manifestLabel = want.c2pa && o.signer ? newManifestLabel() : undefined;
   const dst = sourceType(o.involvement);
@@ -71,16 +74,20 @@ export async function markImage(input: Uint8Array, o: MarkImageOptions = {}): Pr
   let watermarkId: number | undefined;
 
   // 1. Watermark (pixels)
-  if (want.watermark) {
-    const raster = decodeImage(bytes);
-    if (raster.width >= 64 && raster.height >= 64) {
+  if (want.watermark && !canProcessPixels(format)) {
+    warnings.push(`watermark skipped: no ${format} codec registered (see registerImageCodec)`);
+  } else if (want.watermark) {
+    const raster = await decodeImageAsync(bytes);
+    if (raster.width < 64 || raster.height < 64) {
+      warnings.push('watermark skipped: image smaller than 64×64 pixels');
+    } else {
       watermarkId = payloadIdFrom(instanceId);
       const marked = embedWatermark(
         raster,
         { aiGenerated: o.involvement !== 'modified', aiModified: o.involvement === 'modified', id: watermarkId },
         o.watermark,
       );
-      bytes = encodeImage(marked, format, { quality: o.quality, source: bytes });
+      bytes = await encodeImageAsync(marked, format, { quality: o.quality, source: bytes });
       layers.push('watermark');
     }
   }
@@ -101,6 +108,7 @@ export async function markImage(input: Uint8Array, o: MarkImageOptions = {}): Pr
   }
 
   // 3. C2PA manifest (hard binding over everything above)
+  if (want.c2pa && !o.signer) warnings.push('C2PA layer skipped: no signer provided');
   if (want.c2pa && o.signer && manifestLabel) {
     // The first action of a new manifest must be c2pa.created; the source type says how AI was involved.
     const action: Record<string, unknown> = { action: 'c2pa.created', digitalSourceType: dst };
@@ -124,7 +132,7 @@ export async function markImage(input: Uint8Array, o: MarkImageOptions = {}): Pr
     layers.push('c2pa');
   }
 
-  return { bytes, mimeType: container.mimeType, layers, instanceId, manifestLabel, watermarkId };
+  return { bytes, mimeType: container.mimeType, layers, warnings, instanceId, manifestLabel, watermarkId };
 }
 
 export type Verdict = 'ai-generated' | 'ai-modified' | 'no-ai-signal';
@@ -139,6 +147,8 @@ export interface VerifyImageResult {
   watermark: DetectResult;
   /** True when a C2PA manifest is present but the file no longer matches it. */
   tampered: boolean;
+  /** Checks that could not run (e.g. no WebP codec to read the watermark). */
+  warnings: string[];
   width?: number;
   height?: number;
 }
@@ -166,9 +176,13 @@ export async function verifyImage(input: Uint8Array, o: VerifyImageOptions = {})
   let watermark: DetectResult = { detected: false, confidence: 0, weakBits: 64 };
   let width: number | undefined;
   let height: number | undefined;
-  if (!o.skipWatermark) {
+  const warnings: string[] = [];
+  const format = detectFormat(input);
+  if (!o.skipWatermark && format && !canProcessPixels(format)) {
+    warnings.push(`watermark not checked: no ${format} codec registered (see registerImageCodec)`);
+  } else if (!o.skipWatermark) {
     try {
-      const raster = decodeImage(input);
+      const raster = await decodeImageAsync(input);
       width = raster.width;
       height = raster.height;
       watermark = detectWatermark(raster, { key: o.watermarkKey });
@@ -194,6 +208,7 @@ export async function verifyImage(input: Uint8Array, o: VerifyImageOptions = {})
     metadata,
     watermark,
     tampered,
+    warnings,
     width,
     height,
   };

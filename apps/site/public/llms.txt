@@ -28,7 +28,13 @@ const result = await markImage(imageBytes /* Uint8Array, JPEG or PNG */, {
 // result.bytes: Uint8Array, result.mimeType, result.layers: ['watermark', 'metadata', 'c2pa']
 ```
 
-Rules: call `markImage` after any resizing or compositing (it signs the final bytes). Never ship the private key to the browser. Supported formats: JPEG and PNG (convert WebP/AVIF first).
+Rules: call `markImage` after any resizing or compositing (it signs the final bytes). Never ship the private key to the browser. Formats: JPEG, PNG and WebP. For WebP, the watermark needs a registered codec, otherwise `result.warnings` says it was skipped:
+
+```ts
+import sharp from 'sharp';
+import { createSharpCodec, registerImageCodec } from '@filigrane/core';
+registerImageCodec('webp', createSharpCodec(sharp)); // Node.js; in browsers: createCanvasCodec('image/webp')
+```
 
 ## Verify
 
@@ -62,7 +68,7 @@ import '@filigrane/ui'; // registers the custom elements (browser only; SSR-safe
 <ai-label kind="modified" compact></ai-label>
 ```
 
-Attributes: `<ai-disclosure>` lang, model, href, dismissible, remember, variant ("banner" | "compact"). `<ai-label>` kind ("generated" | "modified"), lang, model, href, variant ("badge" | "overlay"), compact. Language comes from the `lang` attribute or the closest `[lang]` ancestor. Theme with CSS variables `--fg-ai-bg`, `--fg-ai-fg`, `--fg-ai-border`, `--fg-ai-accent`, `--fg-ai-radius`, `--fg-ai-font`. Server-side text: `disclosureText('chat', 'fr')`.
+Attributes: `<ai-disclosure>` lang, model, href, dismissible, remember, variant ("banner" | "compact"). `<ai-label>` kind ("generated" | "modified"), lang, model, href, variant ("badge" | "overlay" | "eu"), compact, icon ("eu" default, official EU icon | "filigrane"). Language comes from the `lang` attribute or the closest `[lang]` ancestor. Theme with CSS variables `--fg-ai-bg`, `--fg-ai-fg`, `--fg-ai-border`, `--fg-ai-accent`, `--fg-ai-radius`, `--fg-ai-font`. Server-side text: `disclosureText('chat', 'fr')`.
 
 React/TypeScript JSX typings for the custom elements: https://github.com/Sailxe42/filigrane/blob/main/examples/nextjs/global.d.ts
 

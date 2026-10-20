@@ -17,7 +17,7 @@ import { coseSign1 } from '../crypto/cose.ts';
 import type { Signer } from '../crypto/signer.ts';
 import type { AssetContainer } from '../containers/container.ts';
 import { type SuperBox, serializeJumbf, superboxPayload, uuidBytes, TOGGLE_LABEL, TOGGLE_REQUESTABLE } from '../jumbf/jumbf.ts';
-import { ascii, concat, randomBytes, sha256, u32, uuidV4 } from '../util/bytes.ts';
+import { ascii, concat, equalBytes, randomBytes, sha256, u32, uuidV4 } from '../util/bytes.ts';
 import { LABEL, UUID } from './labels.ts';
 
 export interface AssertionInput {
@@ -74,7 +74,9 @@ export async function signAsset(
   o: SignManifestOptions,
 ): Promise<{ bytes: Uint8Array; manifestLabel: string; store: Uint8Array }> {
   const stripped = container.strip(asset);
-  const dataHash = await sha256(stripped);
+  // For JPEG and PNG the bytes outside the manifest are exactly the stripped file.
+  // Formats with a size header (RIFF/WebP) differ, so the hash is re-checked below.
+  let dataHash = await sha256(stripped);
   const manifestLabel = o.manifestLabel ?? newManifestLabel();
   const instanceId = o.instanceId ?? `xmp:iid:${uuidV4()}`;
 
@@ -83,7 +85,7 @@ export async function signAsset(
   const hashSalt = saltBox();
 
   let exclusion = { start: 0, length: 0 };
-  for (let attempt = 0; attempt < 6; attempt++) {
+  for (let attempt = 0; attempt < 8; attempt++) {
     const hashAssertion = cborAssertion(
       LABEL.hashData,
       { exclusions: [exclusion], name: 'jumbf manifest', alg: 'sha256', hash: dataHash, pad: new Uint8Array(0) },
@@ -119,7 +121,12 @@ export async function signAsset(
 
     const embedded = container.insert(stripped, store);
     if (embedded.range.start === exclusion.start && embedded.range.length === exclusion.length) {
-      return { bytes: embedded.bytes, manifestLabel, store };
+      const { start, length } = embedded.range;
+      const actual = await sha256(concat([embedded.bytes.subarray(0, start), embedded.bytes.subarray(start + length)]));
+      if (equalBytes(actual, dataHash)) return { bytes: embedded.bytes, manifestLabel, store };
+      // The layout is stable but the bytes around the manifest changed (e.g. a RIFF size field): hash them and rebuild.
+      dataHash = actual;
+      continue;
     }
     // The exclusion must describe exactly the bytes the manifest occupies; iterate until stable.
     exclusion = { start: embedded.range.start, length: embedded.range.length };

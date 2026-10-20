@@ -1,5 +1,6 @@
 import { insertJpegJumbf, isJpeg, readJpegJumbf, readJpegXmp, stripJpegC2pa, writeJpegXmp } from './jpeg.ts';
 import { insertPngJumbf, isPng, readPngJumbf, readPngXmp, stripPngC2pa, writePngXmp } from './png.ts';
+import { insertWebpJumbf, isWebp, readWebpJumbf, readWebpXmp, stripWebpC2pa, writeWebpXmp } from './webp.ts';
 
 /** What the C2PA layer needs from a file format. */
 export interface AssetContainer {
@@ -37,6 +38,15 @@ export const pngContainer: AssetContainer = {
   writeXmp: writePngXmp,
 };
 
+export const webpContainer: AssetContainer = {
+  mimeType: 'image/webp',
+  strip: stripWebpC2pa,
+  insert: insertWebpJumbf,
+  read: readWebpJumbf,
+  readXmp: readWebpXmp,
+  writeXmp: writeWebpXmp,
+};
+
 /** Reads the label of the description box of a JUMBF superbox without a full parse. */
 function labelOf(jumbf: Uint8Array): string | undefined {
   // jumb header (8) + jumd header (8) + uuid (16) + toggles (1)
@@ -50,13 +60,16 @@ function labelOf(jumbf: Uint8Array): string | undefined {
 export function containerFor(asset: Uint8Array, mimeType?: string): AssetContainer {
   if (mimeType === 'image/jpeg' || (!mimeType && isJpeg(asset))) return jpegContainer;
   if (mimeType === 'image/png' || (!mimeType && isPng(asset))) return pngContainer;
+  if (mimeType === 'image/webp' || (!mimeType && isWebp(asset))) return webpContainer;
   if (isJpeg(asset)) return jpegContainer;
   if (isPng(asset)) return pngContainer;
-  throw new Error(`Unsupported file format${mimeType ? ` (${mimeType})` : ''}: JPEG and PNG are supported`);
+  if (isWebp(asset)) return webpContainer;
+  throw new Error(`Unsupported file format${mimeType ? ` (${mimeType})` : ''}: JPEG, PNG and WebP are supported`);
 }
 
 export function sniffMimeType(asset: Uint8Array): string | undefined {
   if (isJpeg(asset)) return 'image/jpeg';
   if (isPng(asset)) return 'image/png';
+  if (isWebp(asset)) return 'image/webp';
   return undefined;
 }

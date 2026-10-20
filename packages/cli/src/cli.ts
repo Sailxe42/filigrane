@@ -9,7 +9,7 @@ import { c } from './term.ts';
 const HELP = `${c.bold('filigrane')} ${CLI_VERSION} — mark, label and verify AI-generated content
 
 ${c.bold('Usage')}
-  filigrane mark <file> [options]      Mark an AI-generated image (JPEG/PNG) or text (.txt/.md)
+  filigrane mark <file> [options]      Mark an AI-generated image (JPEG/PNG/WebP) or text (.txt/.md)
   filigrane verify <files...>          Check files for C2PA, IPTC metadata, watermark and text markers
   filigrane scan [dir]                 Find chatbots/generators lacking transparency measures
   filigrane keygen                     Create a development signing certificate

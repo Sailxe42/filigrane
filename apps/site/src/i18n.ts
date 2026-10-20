@@ -70,7 +70,7 @@ export const FR: Record<string, string> = {
   // verify page
   'v.title': 'Vérifiez si un contenu a été généré par IA',
   'v.lead': 'Glissez une image : Filigrane cherche un manifeste C2PA signé, des métadonnées IPTC et un filigrane invisible. Ou collez un texte.',
-  'v.drop': 'Déposez une image JPEG ou PNG',
+  'v.drop': 'Déposez une image JPEG, PNG ou WebP',
   'v.drop2': 'ou cliquez pour choisir un fichier',
   'v.privacy': 'Le fichier ne quitte jamais votre appareil.',
   'v.textTitle': 'Vérifier un texte',

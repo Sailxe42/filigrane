@@ -21,6 +21,7 @@ import '@filigrane/ui'; // registers the elements
 
 - Language from the `lang` attribute, the closest `[lang]` ancestor or the browser.
 - Theme with CSS variables: `--fg-ai-bg`, `--fg-ai-fg`, `--fg-ai-border`, `--fg-ai-accent`, `--fg-ai-radius`, `--fg-ai-font`.
+- Labels use the official EU icons (free to use): `variant="eu"` shows the full official label, `icon="filigrane"` switches to Filigrane's icon. Colours: `--fg-ai-eu-bg`, `--fg-ai-eu-fg`.
 - Events: `ai-disclosure-dismiss`.
 - SSR-safe; `disclosureText('chat', 'fr')` returns the sentence for emails, voice or server-rendered pages.
 
