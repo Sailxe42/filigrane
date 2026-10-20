@@ -76,3 +76,24 @@ describe('<ai-label>', () => {
     expect(badge.getAttribute('aria-label')).toBe('Generato con IA');
   });
 });
+
+describe('EU icons', () => {
+  it('uses the official EU "AI" icon by default and keeps a text label', () => {
+    document.body.innerHTML = '<ai-label lang="fr"></ai-label>';
+    const badge = document.querySelector('ai-label')!.shadowRoot!.querySelector('.badge')!;
+    expect(badge.querySelector('svg.eu')).not.toBeNull();
+    expect(badge.textContent).toContain('Généré par IA');
+  });
+
+  it('shows the full official label with a localised accessible name', () => {
+    document.body.innerHTML = '<ai-label variant="eu" kind="modified" lang="de"></ai-label>';
+    const badge = document.querySelector('ai-label')!.shadowRoot!.querySelector('.badge')!;
+    expect(badge.getAttribute('aria-label')).toBe('KI-bearbeitet');
+    expect(badge.querySelectorAll('svg.eu path')).toHaveLength(2);
+  });
+
+  it('can switch back to the Filigrane icon', () => {
+    document.body.innerHTML = '<ai-label icon="filigrane"></ai-label>';
+    expect(document.querySelector('ai-label')!.shadowRoot!.querySelector('svg.eu')).toBeNull();
+  });
+});

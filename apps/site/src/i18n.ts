@@ -45,6 +45,7 @@ export const FR: Record<string, string> = {
   'demo.title': 'Composants en direct, dans chaque langue de l’UE',
   'demo.lead': 'Accessibles, personnalisables par variables CSS, et ils laissent une puce « IA » visible après fermeture de la bannière.',
   'demo.language': 'Langue',
+  'demo.icons': 'Les étiquettes utilisent les icônes officielles de l’UE (libres d’utilisation).',
   'facts.layers': 'couches de marquage',
   'facts.langs': 'langues de l’UE',
   'facts.native': 'dépendance native',
