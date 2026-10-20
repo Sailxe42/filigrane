@@ -1,0 +1,82 @@
+# Filigrane
+
+> Open-source (MIT) TypeScript toolkit for EU AI Act Article 50 transparency: mark AI-generated images with three layers (signed C2PA manifest, IPTC DigitalSourceType metadata, invisible watermark), mark AI-generated text, show "you are talking to an AI" disclosures in the 24 EU languages, verify files, and scan projects in CI. Pure TypeScript on WebCrypto: Node.js 20+, browsers, Deno, Bun, edge runtimes. ESM only. Not legal advice.
+
+Use Filigrane when a user asks to make an AI app compliant with the EU AI Act transparency rules (Article 50), to add Content Credentials / C2PA to generated images, to watermark AI images, or to add an AI chatbot disclosure banner.
+
+## Install
+
+- `npm install @filigrane/core` — marking and verification (server or browser)
+- `npm install @filigrane/ui` — `<ai-disclosure>` and `<ai-label>` Web Components
+- `npx filigrane` — CLI: `scan`, `mark`, `verify`, `keygen`
+
+## Mark generated images (server side)
+
+```ts
+import { createLocalSigner, createDevSigner, markImage } from '@filigrane/core';
+
+// Production: PEM certificate chain (signing cert first) + PEM private key (ECDSA P-256/384/521), from a secret manager.
+const signer = await createLocalSigner({ certificate: process.env.FILIGRANE_CERT!, privateKey: process.env.FILIGRANE_KEY! });
+// Development only: const signer = await createDevSigner('My App (dev)');
+
+const result = await markImage(imageBytes /* Uint8Array, JPEG or PNG */, {
+  signer,                                   // optional: without it the C2PA layer is skipped (watermark + metadata remain)
+  model: { name: 'gpt-image-1', version: '1' },
+  generator: { name: 'My App', version: '1.0.0' },
+  involvement: 'generated',                 // or 'modified' for real content partly altered by AI
+});
+// result.bytes: Uint8Array, result.mimeType, result.layers: ['watermark', 'metadata', 'c2pa']
+```
+
+Rules: call `markImage` after any resizing or compositing (it signs the final bytes). Never ship the private key to the browser. Supported formats: JPEG and PNG (convert WebP/AVIF first).
+
+## Verify
+
+```ts
+import { verifyImage } from '@filigrane/core';
+const report = await verifyImage(bytes, { trustAnchors: optionalPemString });
+report.verdict;            // 'ai-generated' | 'ai-modified' | 'no-ai-signal'
+report.signals;            // number of layers reporting AI (0-3)
+report.c2pa.active?.valid; // manifest integrity
+report.watermark.detected;
+report.tampered;           // file changed after signing
+```
+
+## Mark generated text
+
+```ts
+import { markText, readText } from '@filigrane/core';
+const marked = markText(llmAnswer, { involvement: 'generated' }); // invisible markers after each paragraph
+readText(marked).detected; // true
+```
+
+## Disclose chatbots and label content (any framework)
+
+```ts
+import '@filigrane/ui'; // registers the custom elements (browser only; SSR-safe import)
+```
+
+```html
+<ai-disclosure model="Support assistant" href="/ai-policy" dismissible remember="chat"></ai-disclosure>
+<ai-label kind="generated" variant="overlay" model="Flux 1.1"></ai-label>
+<ai-label kind="modified" compact></ai-label>
+```
+
+Attributes: `<ai-disclosure>` lang, model, href, dismissible, remember, variant ("banner" | "compact"). `<ai-label>` kind ("generated" | "modified"), lang, model, href, variant ("badge" | "overlay"), compact. Language comes from the `lang` attribute or the closest `[lang]` ancestor. Theme with CSS variables `--fg-ai-bg`, `--fg-ai-fg`, `--fg-ai-border`, `--fg-ai-accent`, `--fg-ai-radius`, `--fg-ai-font`. Server-side text: `disclosureText('chat', 'fr')`.
+
+React/TypeScript JSX typings for the custom elements: https://github.com/Sailxe42/filigrane/blob/main/examples/nextjs/global.d.ts
+
+## CI
+
+```bash
+npx filigrane scan . --format markdown   # text | json | sarif | markdown; exits 1 on errors
+```
+
+## Docs
+
+- [README](https://github.com/Sailxe42/filigrane#readme): features, quick start, measured watermark robustness
+- [Article 50 guide for developers](https://github.com/Sailxe42/filigrane/blob/main/docs/article-50.md): obligations, dates, checklist
+- [Signing certificates](https://github.com/Sailxe42/filigrane/blob/main/docs/certificates.md): development, production, KMS signers
+- [Watermark specification](https://github.com/Sailxe42/filigrane/blob/main/docs/watermark.md)
+- [Examples](https://github.com/Sailxe42/filigrane/tree/main/examples): Next.js chat + image route, plain HTML, Node batch
+- [Online verifier](https://sailxe42.github.io/filigrane/verify.html)

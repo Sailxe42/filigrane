@@ -120,6 +120,16 @@ jobs:
       - uses: Sailxe42/filigrane@v0
 ```
 
+## Using an AI coding assistant?
+
+Point it to [`llms.txt`](https://sailxe42.github.io/filigrane/llms.txt): a compact, accurate summary of the API written for AI assistants. Or paste this prompt:
+
+```text
+Make this app transparent for EU AI Act Article 50 using Filigrane (https://sailxe42.github.io/filigrane/llms.txt):
+mark every generated image with markImage() from @filigrane/core on the server, add <ai-disclosure> from
+@filigrane/ui to the chat UI, and add `npx filigrane scan . --format markdown` to CI.
+```
+
 ## How it works
 
 ```mermaid
